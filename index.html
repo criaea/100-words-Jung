@@ -5,28 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JUNG TYPOLOGY</title>
     
-    <!-- React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- D3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    
-    <!-- Google Translate -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'en,it,es,fr,pl,de,ga',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -370,7 +350,7 @@
 
         /* --- Results Page Styles --- */
         #resultsPage {
-            display: block; /* Managed by React */
+            display: none; /* Hidden by default */
             animation: fadeIn 0.5s ease-in-out;
         }
 
@@ -498,13 +478,14 @@
         }
         /* === END MODIFICATION === */
 
+
         /* --- Letter Definition Grid Styles --- */
         .letter-definitions-grid {
             display: grid;
             grid-template-columns: 1fr; 
             gap: 20px;
             margin: 30px 0;
-            /* display: none; */ /* Managed by React */
+            display: none; /* Hidden by default, shown by JS */
         }
 
         .letter-card {
@@ -574,13 +555,53 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        .result-section-static {
+        .result-section {
             margin-bottom: 15px; 
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border: 1px solid #e0e6ed;
             overflow: hidden; 
+        }
+
+        .result-section[open] {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .result-section-title {
+            font-size: 1.25rem; 
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0; 
+            padding: 18px 25px;
+            border-bottom: none; 
+            display: block; 
+            cursor: pointer;
+            position: relative;
+            list-style: none; /* Remove default marker */
+        }
+
+        .result-section-title::-webkit-details-marker {
+            display: none; 
+        }
+
+        /* Custom Accordion Arrow */
+        .result-section-title::after {
+            content: '+';
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #2575fc;
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+        }
+
+        .result-section[open] > .result-section-title::after {
+            content: '−'; /* Minus sign */
+            transform: translateY(-50%) rotate(180deg);
         }
 
         .result-section-content {
@@ -595,6 +616,11 @@
             font-style: italic;
             font-size: 1.1rem;
             color: #2c3e50;
+        }
+
+        .placeholder {
+            color: #7f8c8d;
+            font-style: italic;
         }
 
         /* --- NEW: Profile Grid Styles --- */
@@ -1013,7 +1039,6 @@
         /* --- Print Styles --- */
         @media print {
             #coverPage, 
-            #settingsPage, /* --- NEW: Hide settings page on print --- */
             #quizSection, 
             .toggle-other-container, 
             .restart-button-container, 
@@ -1090,7 +1115,6 @@
             #other-letter-grid,
             #oppositeTypeHeader,
             #oppositeDesc,
-            #personal-discover-section,
             .profile-grid-container {
                 display: block !important; /* Ensure these are visible */
             }
@@ -1113,528 +1137,1327 @@
             }
         }
         /* --- End Print Styles --- */
+
     </style>
 </head>
 <body>
+    
+    <!-- === NEW: Google Translate Container === -->
     <div id="google_translate_element"></div>
-    <div id="root"></div>
+    <!-- === END NEW === -->
+    
+    <div class="container">
+        
+        <div id="coverPage">
+            <!-- === MODIFICATION HERE: Updated Title === -->
+            <h1 id="coverTitle" class="cover-title">The <b>J16T</b> Questionnaire<br>(Jung 16 Temperaments)</h1>
+            <!-- === END MODIFICATION === -->
+            <p class="cover-copyright">exclusive to <b>ourfields.ie</b> programmes</p>
+            
+            <p class="cover-description">
+                This is a instrument that describes a person's personal style, their own unique way of viewing, responding and relating to the world around them. 
+            </p>
+            <p class="cover-description-sub">
+                It can be used for:
+            </p>
+            <div class="features-list">
+                
+                <div class="feature-item">
+                    <img src="conflict.png" alt="Improving communications" class="feature-icon" onerror="this.src='https://placehold.co/100x100/6a11cb/ffffff?text=Icon'; this.onerror=null;">
+                    <div class="feature-text-content">
+                        <h4 class="feature-title">Improving Communications</h4>
+                        <p class="feature-description">The test helps build self-esteem and manage conflict by focusing on the positive contributions of each personality type. It gives people a framework for valuing their differences.</p>
+                    </div>
+                </div>
 
-    <script type="text/babel">
-        // Import React hooks from global React object
-        const { useState, useEffect, useRef } = React;
+                <div class="feature-item">
+                    <img src="podium.png" alt="Develop individual success" class="feature-icon" onerror="this.src='https://placehold.co/100x100/2575fc/ffffff?text=Icon'; this.onerror=null;">
+                    <div class="feature-text-content">
+                        <h4 class="feature-title">Develop Individual Success</h4>
+                        <p class="feature-description">The test provides practical insight into what motivates and de-motivates an individual. This allows you to map your own personal success and create a plan for improvement.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <img src="self.png" alt="Better self-understanding" class="feature-icon" onerror="this.src='https://placehold.co/100x100/6a11cb/ffffff?text=Icon'; this.onerror=null;">
+                    <div class="feature-text-content">
+                        <h4 class="feature-title">Better Self-Understanding</h4>
+                        <p class="feature-description">The test helps individuals get to know themselves better, which is a source of great satisfaction. It helps you understand what motivates you and discover your unique potential.</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <img src="career.png" alt="Career guidance" class="feature-icon" onerror="this.src='https://placehold.co/100x100/2575fc/ffffff?text=Icon'; this.onerror=null;">
+                    <div class="feature-text-content">
+                        <h4 class="feature-title">Career Guidance</h4>
+                        <p class="feature-description">Self-awareness is the key to good career guidance, as personal style affects motivation. The MBTI helps individuals assess which careers or job opportunities are a good fit.</p>
+                    </div>
+                </div>
 
-        // --- DATA CONSTANTS ---
+            </div>
 
-        const letterDescriptions = {
-            'I': "For Jung, Introversion is a movement of negative relation to the object. The subject (the self) is the prime motivating factor, while the object (the external world) is secondary or even draining. The introvert interposes a subjective view between themselves and the world. Their energy defends against external claims. They are not necessarily shy, but their reality is derived from their internal reaction to impressions rather than the impressions themselves. They tend to be reflective, seeking depth over breadth, and often feel that the outer world is 'too much,' requiring a retreat to the inner citadel to recharge.",
-            'E': "Extroversion is a positive relation to the object. The subject yields to the fascinating influence of the external world. Their psychic life is played out outside themselves, among people and things. They are oriented by objective data and established moral/social laws. Their inner life is often subordinate to external necessities. They risk losing themselves in the object, becoming identical with their role or environment. However, they possess a vital capacity to adapt to life's circumstances and to maintain a healthy, active connection with the collective reality. They find solitude draining and life-giving energy in interaction.",
-            'S': "Sensation is the function that bridges the gap between the physical world and the psyche. It is the perception of reality through the five senses. In the Extroverted attitude, it perceives the object exactly as it is—the redness of the rose, the hardness of the stone. It is the supreme realism. In the Introverted attitude, it perceives the subjective impression the object makes. Sensation anchors the psyche in the here and now, preventing it from floating away into fantasy or abstract theory. It is the function of the 'Real.'",
-            'N': "Intuition is perception via the unconscious. It is a kind of instinctive comprehension that arrives at the total picture without knowing how it got there. It peers around corners. While Sensation sees the tree, Intuition sees the forest and the ecosystem's future. It is the mother of creativity and prophecy. In the Extroverted attitude, it seeks possibilities in the objective world. In the Introverted attitude, it seeks possibilities in the subjective world. It often conflicts with Sensation, as one cannot focus on 'what is' and 'what could be' simultaneously.",
-            'T': "Thinking is the function of intellectual judgment. It brings the contents of ideation into conceptual connection with one another. It seeks to satisfy the laws of logic. Extroverted Thinking builds its structure on objective facts and generally accepted ideas. Introverted Thinking builds its structure on subjective, internal premises. It cares less about facts and more about the clarity and depth of the idea itself. Both forms seek to establish an order of 'truth,' stripping away the personal and the emotional to arrive at a valid, consistent conclusion.",
-            'F': "Feeling is the function of value judgment. It is completely rational, just as Thinking is, but its logic is the logic of the heart. It assesses the worth of things. Extroverted Feeling aligns its values with objective, collective standards (manners, social harmony). Introverted Feeling aligns its values with deep, subjective, primordial images (individual conscience). Feeling gives life its flavor and direction; without it, we would know what everything is, but not what anything matters.",
-            'J': "The Judging attitude utilizes the Rational functions (Thinking and Feeling) to manage life. It is characterized by a desire for closure. The Judging mind wants to categorize, decide, and move on. It prefers a planned, orderly existence where ambiguity is minimized. In the outer world, this manifests as punctuality, decisiveness, and a respect for rules or schedules. However, if over-relied upon, it can lead to rigidity—a refusal to adapt to new information because the mind has already 'decided.'",
-            'P': "The Perceiving attitude utilizes the Irrational functions (Sensation and Intuition) to navigate life. It is characterized by a desire for openness. The Perceiving mind wants to gather more data, see more possibilities, and experience the moment fully before—or instead of—coming to a conclusion. It prefers a flexible, spontaneous existence where the unexpected is welcomed. In the outer world, this manifests as adaptability, curiosity, and a 'wait and see' approach. If over-relied upon, it can lead to aimlessness."
-        };
+            <button id="startBtn">Begin the Evaluation</button>
+            <p class="ourfields-copyright-bottom">ourfields.ie ©</p>
+        </div>
 
-        const personalityDescriptions = {
-            'ISTC(J)': "The Introverted Sensation type is the archetype of the reliable guardian. Their consciousness is focused on the subjective intensity of sensory impressions, which they store and organize meticulously. Every new event is instantly compared against this vast internal library of past experiences, making them excellent at spotting discrepancies and maintaining continuity. They are not swayed by passing fads; they trust what has been proven to work. Their logic is applied to defend this inner reality, resulting in a character that is systematic, dutiful, and deeply grounded. They bring order to the world by upholding traditions and honoring their commitments.",
-            'ISFC(J)': "The Introverted Sensation type with Feeling combines the subjective sensory grounding of the ISTJ with a profound focus on human values. They perceive the world through detailed internal impressions, but their judgment is driven by a need for harmony and care. They are the quiet protectors, often working behind the scenes to ensure the practical needs of others are met. Their loyalty is immense, often identifying closely with a group or family. While they may appear reserved, their inner world is warm and sympathetic. They maintain the social fabric by remembering the details that make people feel valued and safe.",
-            'INFC(J)': "The Introverted Intuition type lives in a world of inner images and archetypes. They are less concerned with the surface reality of things and more with the hidden processes and meanings behind them. Their intuition functions like an inner eye, perceiving the 'seeds' of the future before they sprout. This gives them a prophetic or mystical quality. They are often driven by a deep conviction or vision that they feel compelled to express or fulfill. Their challenge is to translate these complex, often wordless insights into a form that the outer world can understand and accept.",
-            'INTC(J)': "The Introverted Intuition type with Thinking is the strategic mastermind. Like the INFJ, they are driven by an inner vision of possibility, but they process this vision through a rigorous, objective logic. They are not content to simply 'see' the future; they must build it. They view the world as a chessboard of systems to be optimized and reorganized. Independent and often skeptical of authority, they trust their own insight above all else. They are ruthless in their pursuit of efficiency and truth, willing to tear down established structures if they impede the realization of their long-range plans.",
-            'ISTM(P)': "The Introverted Thinking type is the detached analyst of the concrete world. They use their thinking function to construct a complex, internal model of how things work. They are typically quiet observers, gathering factual data until they understand the underlying logic of a system. Unlike the abstract scientist, the ISTP applies this logic to immediate, tangible reality—tools, machines, or crises. They are adaptable and economical in their actions, moving with a cool, rational precision. They value autonomy above all, resisting external rules that clash with their own internal logical principles. They are the masters of the 'art of the possible.'",
-            'ISFM(P)': "The Introverted Feeling type is the archetype of the silent artist. Their life is guided by a differentiated and intensive inner feeling process. These values are rarely articulated in words, which can seem inadequate, but are expressed through their actions, demeanor, and aesthetic choices. They seek a profound harmony between their inner truth and their outer life. They can appear cool or aloof on the surface, but inside burns a passionate intensity. They perceive the world with a heightened sensory awareness, seeking to capture the beauty and tragedy of the moment without imposing a judgment upon it.",
-            'INFM(P)': "The Introverted Feeling type with Intuition is the idealistic dreamer and healer. Their primary orientation is toward a deep, idiosyncratic system of inner values. Unlike the ISFP, who expresses this through sensory action, the INFP explores it through possibilities and language. They are searching for a reflection of their inner ideal in the outer world. They are sensitive to inauthenticity and are driven by a desire to heal the split between 'what is' and 'what ought to be.' They are the writers and prophets of the heart, often sacrificing their own comfort for a cause that aligns with their moral vision.",
-            'INTM(P)': "The Introverted Thinking type with Intuition is the architect of pure reason. They are driven to build accurate internal models of the universe. Their mind is a laboratory where ideas are tested for logical consistency. They are less interested in the practical value of an idea than in its theoretical correctness. They are skeptical, precise, and deeply intellectual. Their intuition provides them with flashes of possibility, which their thinking then dissects and systematizes. They can be oblivious to social niceties or physical surroundings, living almost entirely in a world of abstract concepts and intellectual exploration.",
-            'ESTM(P)': "The Extroverted Sensation type is the ultimate realist. They are fully immersed in the stream of objective events. To them, the only thing that matters is the 'here and now.' They are vital, energetic, and driven by a hunger for sensory experience. They do not analyze motives or ponder the future; they act. They are often found in high-stakes environments where quick reflexes and adaptability are key. They have an uncanny ability to see things exactly as they are, without the filter of sentiment or theory, making them excellent problem-solvers in concrete, chaotic situations.",
-            'ESFM(P)': "The Extroverted Sensation type with Feeling is the lover of life. Like the ESTP, they are grounded in the present reality, but their orientation is toward people and shared experiences. They approach the world with a warm, realistic optimism. They love material comforts, good food, and social gatherings. They are the most generous and hospitable of types, seeking to make every moment enjoyable. They rely on their senses to navigate relationships, noticing the physical needs and moods of others instantly. They avoid complex analysis, preferring to live fully and harmoniously in the moment.",
-            'ENFM(P)': "The Extroverted Intuition type is the inspirer and the change-agent. They perceive the world not as a collection of objects, but as a web of fascinating possibilities. They are constantly scanning the environment for potential—in people, in projects, in ideas. They are magnetic and enthusiastic, able to rally others to their cause. However, they often loathe routine and detail. Once a possibility has been explored and the mystery is gone, they are ready to move on to the next adventure. They live for the 'spark' of creation and the discovery of new connections.",
-            'ENTM(P)': "The Extroverted Intuition type with Thinking is the innovator and the debater. They use their intuition to see how systems can be changed or exploited, and their thinking to explain why. They are alert, outspoken, and enjoy the mental gymnastics of argument. They are not bound by tradition; in fact, they enjoy dismantling it to see if a better way exists. They are entrepreneurial in spirit, always looking for the next big idea or the leverage point in a situation. They can be inconsistent, as their loyalty is to the flow of ideas rather than to people or established procedures.",
-            'ESTC(J)': "The Extroverted Thinking type is the natural organizer of society. They trust objective facts and universal rules. They feel a strong responsibility to ensure that the environment is structured, logical, and efficient. They are the administrators who enforce the law and the managers who ensure the job gets done. They value competence, clarity, and closure. They may seem rigid to more spontaneous types, but their rigidity comes from a deep commitment to justice and order. They express their values by doing their duty and ensuring that everyone else does theirs.",
-            'ESFC(J)': "The Extroverted Feeling type is the harmonizer of the community. They orient themselves by the objective values of their culture—what is considered 'good,' 'polite,' and 'appropriate.' They are deeply attuned to the emotional atmosphere of their environment and work tirelessly to keep it positive. They are the hosts, the caregivers, and the upholders of social tradition. They do not seek to change the world, but to care for the people in it. They need to feel appreciated and connected, and they thrive in environments where cooperation and shared values are the norm.",
-            'ENFC(J)': "The Extroverted Feeling type with Intuition is the charismatic pedagogue or leader. They are driven to build help others realize their potential. They possess a unique ability to 'empathize' with a crowd, instinctively knowing what to say to inspire and motivate. They are often found in roles where they can guide, teach, or counsel. They are idealists who organize people not just for efficiency, but for growth. They can sometimes be over-involved in the lives of others, but their intent is almost always to foster harmony and development on a large scale.",
-            'ENTC(J)': "The Extroverted Thinking type with Intuition is the natural born leader and executive. They have a drive to organize and lead, but unlike the ESTJ who maintains order, the ENTJ seeks to create new order. They are strategic and focus on the long-term validity of their plans. They are objective, decisive, and often intellectually intimidating. They see inefficiency as a personal failing and are relentless in eliminating it. They are happy to take charge and have little patience for confusion or half-measures. They build systems that are designed to last and to conquer."
-        };
+        <div id="quizSection" style="display: none;"> 
+            <h1>JUNG TYPOLOGY</h1>
+            
+            <div id="questionnaire">
+                <div class="question-container" id="q-container" style="opacity: 0;"> <div class="question-number" id="q-number">1</div>
+                    <div class="question-text" id="q-text">Loading...</div>
+                    <div class="options-container">
+                        <div class="option" id="q-option-0" data-value="">
+                            <input type="radio" name="q_radio" id="option0" value="">
+                            <label for="option0" id="q-label-0">Option A</label>
+                        </div>
+                        <div class="option" id="q-option-1" data-value="">
+                            <input type="radio" name="q_radio" id="option1" value="">
+                            <label for="option1" id="q-label-1">Option B</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="navigation" id="mainNavigation">
+                <button id="prevBtn">Previous</button>
+                <button id="nextBtn" style="display: none;">Next</button>
+                <button id="finishBtn" style="display: none;">Finish</button>
+            </div>
+            
+            <!-- === NEW FOOTER HERE === -->
+            <footer class="page-footer">
+                <b>ourfields.ie</b> J16T (Jung 16 Temperaments)
+            </footer>
+            <!-- === END NEW FOOTER === -->
+        </div>
+        
+        <div id="resultsPage" style="display: none;">
+            
+            <div id="print-page-1">
+                <h1>Your Results</h1>
+                <div class="chart-container">
+                    <!-- === MODIFICATION: Replaced Canvas with SVG for D3 === -->
+                    <svg id="mainResultsChart" viewBox="0 0 600 400"></svg>
+                    <!-- === END MODIFICATION === -->
+                </div>
+                
+                <div id="personalityType" class="personality-type-display"></div> 
 
-        const questions = [
-            { type: "S/N", text: "Are you:", options: ["Observant of your surroundings", "Introspective and thinking"] },
-            { type: "E/I", text: "While waiting for the train, do you:", options: ["Chat with others", "Stay silent"] },
-            { type: "T/F", text: "When dealing with people, are you:", options: ["Direct", "Gentle"] },
-            { type: "J/P", text: "Does workplace clutter:", options: ["Stress you", "Leave you indifferent"] },
-            { type: "T/F", text: "Which is easier for you to give?", options: ["Critical/Direct feedback", "Vague feedback (avoiding details)"] },
-            { type: "S/N", text: "Do you:", options: ["Stick to the tried and trusted", "Speculate about possibilities"] },
-            { type: "J/P", text: "Do you:", options: ["Decide instantaneously", "Linger over decision making"] },
-            { type: "S/N", text: "Are you:", options: ["Factual", "Imaginative"] },
-            { type: "E/I", text: "When the phone rings, do you:", options: ["Rush to answer it", "Let others answer"] },
-            { type: "T/F", text: "Do you place importance on:", options: ["Hard data", "Opinion"] },
-            { type: "J/P", text: "Do you prefer agreements to be:", options: ["Written up and signed", "Agreed on word and a handshake"] },
-            { type: "T/F", text: "When evaluating others, are you:", options: ["Impersonal and objective", "Subjective and personal"] },
-            { type: "S/N", text: "Are you more interested in:", options: ["What is real", "What is possible"] },
-            { type: "J/P", text: "Are you more at ease:", options: ["When matters are complete", "With work in progress"] },
-            { type: "S/N", text: "Are you always:", options: ["Up to date with the news", "Somewhat out of touch"] },
-            { type: "E/I", text: "When socialising, do you:", options: ["Speak with many people", "Speak with a few friends"] },
-            { type: "T/F", text: "When you are communicating with others, do you:", options: ["Talk directly", "Talk diplomatically"] },
-            { type: "J/P", text: "Do you prefer:", options: ["A detailed outline of work done", "A list of completed tasks"] },
-            { type: "T/F", text: "Do you prefer:", options: ["A rational, consistent approach", "A harmonious, personal approach"] },
-            { type: "S/N", text: "Do you like authors who:", options: ["Write hard facts", "Use metaphors"] },
-            { type: "J/P", text: "Are you more comfortable:", options: ["After a decision is made", "Before a decision is made"] },
-            { type: "S/N", text: "Do you find visionaries:", options: ["Annoying", "Fascinating"] },
-            { type: "E/I", text: "Does being at a party:", options: ["Energise you", "Drain you"] },
-            { type: "T/F", text: "In an argument or discussion, do you:", options: ["Act confrontationally", "Seek collaborative solutions"] },
-            { type: "J/P", text: "For you, is giving feedback:", options: ["Easy", "Difficult"] },
-            { type: "T/F", text: "Which is preferable for you?", options: ["To be just", "To be understanding"] },
-            { type: "S/N", text: "Is 'Common sense':", options: ["Usually reliable", "Occasionally questionable"] },
-            { type: "J/P", text: "Do you:", options: ["Do one job at a time", "Work at many jobs simultaneously"] },
-            { type: "S/N", text: "Do you:", options: ["Say what is on your mind", "Express many opinions"] },
-            { type: "E/I", text: "In a group of people, do you:", options: ["Talk a lot", "Mostly listen"] },
-            { type: "T/F", text: "Which sums you up best?", options: ["Cool-headed", "Warm-hearted"] },
-            { type: "J/P", text: "Are you:", options: ["Organised", "Spontaneous"] },
-            { type: "T/F", text: "In work situations, do you:", options: ["Give orders", "Get everyone to find solutions"] },
-            { type: "S/N", text: "Do you prefer:", options: ["Sensible/Factual people", "People who explore options"] },
-            { type: "J/P", text: "Do you prefer to:", options: ["Work to deadlines", "Work whenever"] },
-            { type: "S/N", text: "Which ability do you consider best?", options: ["Ability to follow a plan", "Ability to adapt and adjust plans"] },
-            { type: "E/I", text: "Are you:", options: ["A social person", "A private person"] },
-            { type: "T/F", text: "Which are you?", options: ["A logical person", "A feeling person"] },
-            { type: "J/P", text: "Do you decide:", options: ["Based on analysis", "On a considered hunch"] },
-            { type: "T/F", text: "Which is most satisfying for you?", options: ["Thorough discussion", "Reaching agreement"] },
-            { type: "S/N", text: "After a meal, do you:", options: ["Tidy up immediately", "Leave it until later"] },
-            { type: "J/P", text: "Is your behaviour:", options: ["Hurried", "Laid back"] },
-            { type: "S/N", text: "Do you hear what is said as:", options: ["The whole story", "Most of the story"] },
-            { type: "E/I", text: "Do you:", options: ["Share your feelings easily", "Act reserved"] },
-            { type: "T/F", text: "Are you:", options: ["An uncompromising person", "A collaborative person"] },
-            { type: "J/P", text: "Do you find it:", options: ["Stressful to change plans", "Easy to reschedule meetings"] },
-            { type: "T/F", text: "Are you:", options: ["Tough-minded", "Fair-minded"] },
-            { type: "S/N", text: "When evaluating a situation, do you:", options: ["See only what is in front of you", "Imagine more possibilities"] },
-            { type: "J/P", text: "Is your approach to:", options: ["Ensure everything is arranged", "Just let things happen"] },
-            { type: "S/N", text: "Do you only trust:", options: ["Past experiences", "That all possibilities are worth checking"] },
-            { type: "E/I", text: "Do you:", options: ["Know a little about everything", "Know much about a few things"] },
-            { type: "T/F", text: "Are you convinced more often by:", options: ["Hard evidence", "Possible outside-the-box solutions"] },
-            { type: "J/P", text: "Is your approach to life:", options: ["Structured", "Flexible"] },
-            { type: "T/F", text: "Which is the greatest asset?", options: ["Strength of will", "Strength of fair compassion"] },
-            { type: "S/N", text: "Do you always feel:", options: ["Down to earth", "Like you daydream a little"] },
-            { type: "J/P", text: "How do you cope with unexpected events?", options: ["Get a good handle on things", "Get very stressed"] },
-            { type: "S/N", text: "Do you act in a:", options: ["Routine way", "Whimsical way"] },
-            { type: "E/I", text: "Are you:", options: ["A good conversationalist", "A good listener"] },
-            { type: "T/F", text: "Are you:", options: ["Thick-skinned", "Sensitive"] },
-            { type: "J/P", text: "Do you tend to:", options: ["Rely on old ways of doing", "Be on the lookout for new ways"] },
-            { type: "T/F", text: "Do you prefer to:", options: ["Operate the production machine", "Manage the team of people"] },
-            { type: "S/N", text: "Are you more:", options: ["Practical", "Ingenious"] },
-            { type: "J/P", text: "Are you:", options: ["More punctual", "Leisurely/Nonchalant"] },
-            { type: "S/N", text: "Do you approach work in:", options: ["An organised and principled way", "An innovative and flexible way"] },
-            { type: "E/I", text: "Are you:", options: ["Social and outgoing", "Reserved and quiet"] },
-            { type: "T/F", text: "Do you most trust:", options: ["Your experience", "Your hunches"] },
-            { type: "J/P", text: "Are you:", options: ["Always on the go", "Relaxed, easy going"] },
-            { type: "T/F", text: "Which is the greater error?", options: ["Being too passionate", "Being too objective"] },
-            { type: "S/N", text: "Do you tend to be more:", options: ["Deliberate", "Spontaneous"] },
-            { type: "J/P", text: "In evaluating others, what influences you most?", options: ["Laws", "Circumstances"] },
-            { type: "S/N", text: "Which do you prefer in stories/film?", options: ["Action", "Fantasy"] },
-            { type: "E/I", text: "In your sports club, do you:", options: ["Promote activities", "Do the administration"] },
-            { type: "T/F", text: "Which is more difficult for you?", options: ["To identify with others", "To utilise others"] },
-            { type: "J/P", text: "Are you:", options: ["A deadlines person", "A 'just whenever' person"] },
-            { type: "T/F", text: "Which is most vital?", options: ["Following the to-do list", "Teamwork"] },
-            { type: "S/N", text: "Are you:", options: ["Easy to talk to/approach", "Shy and reserved"] },
-            { type: "J/P", text: "When do you plan your annual holidays?", options: ["Months before", "Weeks before"] },
-            { type: "S/N", text: "Are you attracted to:", options: ["The fundamentals", "The promise"] },
-            { type: "T/F", text: "For you, which is more important?", options: ["Following the rules", "Everyone taking full responsibility"] },
-            { type: "J/P", text: "Do you use:", options: ["Written work schedules", "Your memory"] }
-        ];
+                <div class="result-section-static">
+                    <div id="personalityWords" class="personality-words-display"></div> 
+                    <p id="desc-overview" class="result-section-content"></p>
+                </div>
+            </div>
+            <div class="letter-definitions-grid" id="letter-grid">
+                <details class="letter-card" id="letter-card-0">
+                    <summary class="letter-card-title" id="letter-title-0"></summary>
+                    <p class="letter-card-desc" id="letter-desc-0"></p>
+                </details>
+                <details class="letter-card" id="letter-card-1">
+                    <summary class="letter-card-title" id="letter-title-1"></summary>
+                    <p class="letter-card-desc" id="letter-desc-1"></p>
+                </details>
+                <details class="letter-card" id="letter-card-2">
+                    <summary class="letter-card-title" id="letter-title-2"></summary>
+                    <p class="letter-card-desc" id="letter-desc-2"></p>
+                </details>
+                <details class="letter-card" id="letter-card-3">
+                    <summary class="letter-card-title" id="letter-title-3"></summary>
+                    <p class="letter-card-desc" id="letter-desc-3"></p>
+                </details>
+            </div>
 
-        const profileGridData = [
-            { type: 'ISTC(J)', title: "Life's Natural Organizers", color: 'a' },
-            { type: 'ISFC(J)', title: "Committed to Getting the Job Done", color: 'b' },
-            { type: 'INFC(J)', title: "An Inspiring Leader and Follower", color: 'a' },
-            { type: 'INTC(J)', title: "Life's Independent Thinkers", color: 'b' },
-            { type: 'ESTM(P)', title: "Making the Most of the Moment", color: 'b' },
-            { type: 'ESFM(P)', title: "Let's Make Work Fun", color: 'a' },
-            { type: 'ENFM(P)', title: "People Are the Product", color: 'b' },
-            { type: 'ENTM(P)', title: "Progress Is the Product", color: 'a' },
-            { type: 'ISTM(P)', title: "Just Do It", color: 'a' },
-            { type: 'ISFM(P)', title: "Action Speaks Louder Than Words", color: 'b' },
-            { type: 'INFM(P)', title: "Making Life Kinder and Gentler", color: 'a' },
-            { type: 'INTM(P)', title: "Life's Problem Solvers", color: 'b' },
-            { type: 'ESTC(J)', title: "Life's Natural Administrators", color: 'b' },
-            { type: 'ESFC(J)', title: "Everyone's Trusted Friend", color: 'a' },
-            { type: 'ENFC(J)', title: "Smooth-Talking Persuaders", color: 'b' },
-            { type: 'ENTC(J)', title: "Life's Natural Leaders", color: 'a' },
-        ];
+            <!-- --- MODIFIED: This is now the styled container --- -->
+            <div class="results-details">
+                <div class="toggle-other-container">
+                    <button id="showOtherBtn" class="other-toggle-btn">Show Converse Profile</button> 
+                </div>
 
-        const chartDescriptions = {
-            'E': { question: "Where do I get my energy from? How do I relate to the outer world?", answer: "I mainly direct my energy towards the outer world of people and things. I tend to act first and reflect later. Interaction stimulates me, and I often feel energized after being active and social." },
-            'I': { question: "Where do I get my energy from? How do I relate to the outer world?", answer: "I mainly direct my energy towards the inner world of experiences and ideas. I tend to reflect first and act later. I value privacy and often need time alone to recharge after social interaction." },
-            'S': { question: "How do I take in Information? Find out about things?", answer: "I focus on what is real and actual. I value practical application and trust information that I can confirm with my five senses. I pay attention to details and the present moment." },
-            'N': { question: "How do I take in Information? Find out about things?", answer: "I focus on patterns and meanings. I value imagination and inspiration, trusting my intuition and hunches. I am often more interested in future possibilities and the 'big picture' than specific details." },
-            'T': { question: "How do I make decisions?", answer: "I prefer to make decisions based on logic and objective analysis. I search for the truth and principles that apply in a given situation. I strive to be impartial and value consistency." },
-            'F': { question: "How do I make decisions?", answer: "I prefer to make decisions based on values and subjective evaluation. I am concerned with harmony and how the decision will affect the people involved. I strive to be compassionate and empathetic." },
-            'J': { question: "How do I organise my outer world?", answer: "I prefer a planned and organized approach to life. I like to have things settled and decided. I enjoy making lists, schedules, and bringing closure to tasks." },
-            'P': { question: "How do I organise my outer world?", answer: "I prefer a flexible and spontaneous approach to life. I like to keep my options open and adapt to new information as it arises. I feel comfortable going with the flow." }
-        };
+                <div class="chart-container" id="converse-chart-container" style="display: none;">
+                    <svg id="converseResultsChart" viewBox="0 0 960 500"></svg>
+                </div>
+                <h3 id="oppositeTypeHeader" class="opposite-type-header" style="display: none;"></h3>
 
-        const wordMap = {
-            'E': 'Extroverted', 'I': 'Introverted',
-            'S': 'Sensate', 'N': 'iNtuitive',
-            'T': 'Thinking', 'F': 'Feeling',
-            'J': 'Considered', 'P': 'iMpromptu'
-        };
+                <p id="oppositeDesc" class="result-section-content" style="display: none; font-style: italic;"></p>
+                <div class="letter-definitions-grid other-letter-grid" id="other-letter-grid">
+                    <details class="letter-card other-letter-card" id="other-letter-card-0">
+                        <summary class="letter-card-title" id="other-letter-title-0"></summary>
+                        <p class="letter-card-desc" id="other-letter-desc-0"></p>
+                    </details>
+                    <details class="letter-card other-letter-card" id="other-letter-card-1">
+                        <summary class="letter-card-title" id="other-letter-title-1"></summary>
+                        <p class="letter-card-desc" id="other-letter-desc-1"></p>
+                    </details>
+                    <details class="letter-card other-letter-card" id="other-letter-card-2">
+                        <summary class="letter-card-title" id="other-letter-title-2"></summary>
+                        <p class="letter-card-desc" id="other-letter-desc-2"></p>
+                    </details>
+                    <details class="letter-card other-letter-card" id="other-letter-card-3">
+                        <summary class="letter-card-title" id="other-letter-title-3"></summary>
+                        <p class="letter-card-desc" id="other-letter-desc-3"></p>
+                    </details>
+                </div>
+            </div>
 
-        const rgbaColorMap = {
-            'E': { bg: 'rgba(234, 228, 0, 0.9)', border: 'rgba(234, 228, 0, 1)' },
-            'I': { bg: 'rgba(68, 179, 225, 0.9)', border: 'rgba(68, 179, 225, 1)' },
-            'S': { bg: 'rgba(255, 153, 0, 0.9)', border: 'rgba(255, 153, 0, 1)' },
-            'N': { bg: 'rgba(120, 33, 112, 0.9)', border: 'rgba(120, 33, 112, 1)' },
-            'T': { bg: 'rgba(33, 92, 152, 0.9)', border: 'rgba(33, 92, 152, 1)' },
-            'F': { bg: 'rgba(78, 167, 46, 0.9)', border: 'rgba(78, 167, 46, 1)' },
-            'J': { bg: 'rgba(235, 21, 21, 0.9)', border: 'rgba(235, 21, 21, 1)' },
-            'P': { bg: 'rgba(153, 102, 51, 0.9)', border: 'rgba(153, 102, 51, 1)' }
-        };
+            <!-- === MODIFICATION: New separate bubble for the grid === -->
+            <div class="results-details">
+                <div class="profile-grid-container">
+                    <h3 class="profile-grid-title">Discover Jung's 16 Profiles</h3>
+                    <div id="profileGrid" class="profile-grid">
+                        </div>
+                </div>
+            </div>
+            <!-- === END MODIFICATION === -->
+            
+            <div class="restart-button-container">
+                 <button id="printBtn">Download / Print Results</button>
+            </div>
+            
+            <!-- === NEW FOOTER HERE === -->
+            <footer class="page-footer">
+                <b>ourfields.ie</b> J16T (Jung 16 Temperaments)
+            </footer>
+            <!-- === END NEW FOOTER === -->
+        </div>
+    </div>
 
-        const formatLetter = (letter) => {
-            if (letter === 'J') return 'C(J)';
-            if (letter === 'P') return 'M(P)';
-            return letter;
-        };
+    <div id="profileModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="modalCloseBtn" class="modal-close">&times;</button>
+            <h4 id="modalTitle" class="modal-profile-title"></h4>
+            <p id="modalSubtitle" class="modal-profile-subtitle"></p>
+            <p id="modalDescription" class="modal-profile-description"></p>
+        </div>
+    </div>
+    
+   <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'it,es,fr,pl', // This line limits the languages
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <!-- === END NEW === -->
 
-        const formatTypeString = (type) => {
-            return type
-                .replace('J', 'C<span class="suffix">(J)</span>')
-                .replace('P', 'M<span class="suffix">(P)</span>');
-        };
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
 
-        const formatTypeKey = (str) => {
-            return str.replace('J', 'C(J)').replace('P', 'M(P)');
-        };
+            // --- Questions Data ---
+            /* === MODIFICATION START: Corrected grammar, syntax, and typos for all 80 questions === */
+            const questions = [
+                { type: "S/N", text: "Are you:", options: ["Observant of your surroundings", "Introspective and thinking"] },
+                { type: "E/I", text: "While waiting for the train, do you:", options: ["Chat with others", "Stay silent"] },
+                { type: "T/F", text: "When dealing with people, are you:", options: ["Direct", "Gentle"] },
+                { type: "J/P", text: "Does workplace clutter:", options: ["Stress you", "Leave you indifferent"] },
+                { type: "T/F", text: "Which is easier for you to give?", options: ["Critical/Direct feedback", "Vague feedback (avoiding details)"] },
+                { type: "S/N", text: "Do you:", options: ["Stick to the tried and trusted", "Speculate about possibilities"] },
+                { type: "J/P", text: "Do you:", options: ["Decide instantaneously", "Linger over decision making"] },
+                { type: "S/N", text: "Are you:", options: ["Factual", "Imaginative"] },
+                { type: "E/I", text: "When the phone rings, do you:", options: ["Rush to answer it", "Let others answer"] },
+                { type: "T/F", text: "Do you place importance on:", options: ["Hard data", "Opinion"] },
+                { type: "J/P", text: "Do you prefer agreements to be:", options: ["Written up and signed", "Agreed on word and a handshake"] },
+                { type: "T/F", text: "When evaluating others, are you:", options: ["Impersonal and objective", "Subjective and personal"] },
+                { type: "S/N", text: "Are you more interested in:", options: ["What is real", "What is possible"] },
+                { type: "J/P", text: "Are you more at ease:", options: ["When matters are complete", "With work in progress"] },
+                { type: "S/N", text: "Are you always:", options: ["Up to date with the news", "Somewhat out of touch"] },
+                { type: "E/I", text: "When socialising, do you:", options: ["Speak with many people", "Speak with a few friends"] },
+                { type: "T/F", text: "When you are communicating with others, do you:", options: ["Talk directly", "Talk diplomatically"] },
+                { type: "J/P", text: "Do you prefer:", options: ["A detailed outline of work done", "A list of completed tasks"] },
+                { type: "T/F", text: "Do you prefer:", options: ["A rational, consistent approach", "A harmonious, personal approach"] },
+                { type: "S/N", text: "Do you like authors who:", options: ["Write hard facts", "Use metaphors"] },
+                { type: "J/P", text: "Are you more comfortable:", options: ["After a decision is made", "Before a decision is made"] },
+                { type: "S/N", text: "Do you find visionaries:", options: ["Annoying", "Fascinating"] },
+                { type: "E/I", text: "Does being at a party:", options: ["Energise you", "Drain you"] },
+                { type: "T/F", text: "In an argument or discussion, do you:", options: ["Act confrontationally", "Seek collaborative solutions"] },
+                { type: "J/P", text: "For you, is giving feedback:", options: ["Easy", "Difficult"] },
+                { type: "T/F", text: "Which is preferable for you?", options: ["To be just", "To be understanding"] },
+                { type: "S/N", text: "Is 'Common sense':", options: ["Usually reliable", "Occasionally questionable"] },
+                { type: "J/P", text: "Do you:", options: ["Do one job at a time", "Work at many jobs simultaneously"] },
+                { type: "S/N", text: "Do you:", options: ["Say what is on your mind", "Express many opinions"] },
+                { type: "E/I", text: "In a group of people, do you:", options: ["Talk a lot", "Mostly listen"] },
+                { type: "T/F", text: "Which sums you up best?", options: ["Cool-headed", "Warm-hearted"] },
+                { type: "J/P", text: "Are you:", options: ["Organised", "Spontaneous"] },
+                { type: "T/F", text: "In work situations, do you:", options: ["Give orders", "Get everyone to find solutions"] },
+                { type: "S/N", text: "Do you prefer:", options: ["Sensible/Factual people", "People who explore options"] },
+                { type: "J/P", text: "Do you prefer to:", options: ["Work to deadlines", "Work whenever"] },
+                { type: "S/N", text: "Which ability do you consider best?", options: ["Ability to follow a plan", "Ability to adapt and adjust plans"] },
+                { type: "E/I", text: "Are you:", options: ["A social person", "A private person"] },
+                { type: "T/F", text: "Which are you?", options: ["A logical person", "A feeling person"] },
+                { type: "J/P", text: "Do you decide:", options: ["Based on analysis", "On a considered hunch"] },
+                { type: "T/F", text: "Which is most satisfying for you?", options: ["Thorough discussion", "Reaching agreement"] },
+                { type: "S/N", text: "After a meal, do you:", options: ["Tidy up immediately", "Leave it until later"] },
+                { type: "J/P", text: "Is your behaviour:", options: ["Hurried", "Laid back"] },
+                { type: "S/N", text: "Do you hear what is said as:", options: ["The whole story", "Most of the story"] },
+                { type: "E/I", text: "Do you:", options: ["Share your feelings easily", "Act reserved"] },
+                { type: "T/F", text: "Are you:", options: ["An uncompromising person", "A collaborative person"] },
+                { type: "J/P", text: "Do you find it:", options: ["Stressful to change plans", "Easy to reschedule meetings"] },
+                { type: "T/F", text: "Are you:", options: ["Tough-minded", "Fair-minded"] },
+                { type: "S/N", text: "When evaluating a situation, do you:", options: ["See only what is in front of you", "Imagine more possibilities"] },
+                { type: "J/P", text: "Is your approach to:", options: ["Ensure everything is arranged", "Just let things happen"] },
+                { type: "S/N", text: "Do you only trust:", options: ["Past experiences", "That all possibilities are worth checking"] },
+                { type: "E/I", text: "Do you:", options: ["Know a little about everything", "Know much about a few things"] },
+                { type: "T/F", text: "Are you convinced more often by:", options: ["Hard evidence", "Possible outside-the-box solutions"] },
+                { type: "J/P", text: "Is your approach to life:", options: ["Structured", "Flexible"] },
+                { type: "T/F", text: "Which is the greatest asset?", options: ["Strength of will", "Strength of fair compassion"] },
+                { type: "S/N", text: "Do you always feel:", options: ["Down to earth", "Like you daydream a little"] },
+                { type: "J/P", text: "How do you cope with unexpected events?", options: ["Get a good handle on things", "Get very stressed"] },
+                { type: "S/N", text: "Do you act in a:", options: ["Routine way", "Whimsical way"] },
+                { type: "E/I", text: "Are you:", options: ["A good conversationalist", "A good listener"] },
+                { type: "T/F", text: "Are you:", options: ["Thick-skinned", "Sensitive"] },
+                { type: "J/P", text: "Do you tend to:", options: ["Rely on old ways of doing", "Be on the lookout for new ways"] },
+                { type: "T/F", text: "Do you prefer to:", options: ["Operate the production machine", "Manage the team of people"] },
+                { type: "S/N", text: "Are you more:", options: ["Practical", "Ingenious"] },
+                { type: "J/P", text: "Are you:", options: ["More punctual", "Leisurely/Nonchalant"] },
+                { type: "S/N", text: "Do you approach work in:", options: ["An organised and principled way", "An innovative and flexible way"] },
+                { type: "E/I", text: "Are you:", options: ["Social and outgoing", "Reserved and quiet"] },
+                { type: "T/F", text: "Do you most trust:", options: ["Your experience", "Your hunches"] },
+                { type: "J/P", text: "Are you:", options: ["Always on the go", "Relaxed, easy going"] },
+                { type: "T/F", text: "Which is the greater error?", options: ["Being too passionate", "Being too objective"] },
+                { type: "S/N", text: "Do you tend to be more:", options: ["Deliberate", "Spontaneous"] },
+                { type: "J/P", text: "In evaluating others, what influences you most?", options: ["Laws", "Circumstances"] },
+                { type: "S/N", text: "Which do you prefer in stories/film?", options: ["Action", "Fantasy"] },
+                { type: "E/I", text: "In your sports club, do you:", options: ["Promote activities", "Do the administration"] },
+                { type: "T/F", text: "Which is more difficult for you?", options: ["To identify with others", "To utilise others"] },
+                { type: "J/P", text: "Are you:", options: ["A deadlines person", "A 'just whenever' person"] },
+                { type: "T/F", text: "Which is most vital?", options: ["Following the to-do list", "Teamwork"] },
+                { type: "S/N", text: "Are you:", options: ["Easy to talk to/approach", "Shy and reserved"] },
+                { type: "J/P", text: "When do you plan your annual holidays?", options: ["Months before", "Weeks before"] },
+                { type: "S/N", text: "Are you attracted to:", options: ["The fundamentals", "The promise"] },
+                { type: "T/F", text: "For you, which is more important?", options: ["Following the rules", "Everyone taking full responsibility"] },
+                { type: "J/P", text: "Do you use:", options: ["Written work schedules", "Your memory"] }
+            ];
+            /* === MODIFICATION END === */
 
-        const App = () => {
-            const [stage, setStage] = useState('cover');
-            const [qIndex, setQIndex] = useState(0);
-            const [answers, setAnswers] = useState(new Array(questions.length).fill(null));
-            const [isAdvancing, setIsAdvancing] = useState(false);
-            const [showConverse, setShowConverse] = useState(false);
-            const [modalData, setModalData] = useState(null);
-
-            // Results state
-            const [finalData, setFinalData] = useState([]);
-            const [otherLetters, setOtherLetters] = useState([]);
-            const [typeString, setTypeString] = useState('');
-            const [scoresState, setScoresState] = useState({});
-            const [maxScoresState, setMaxScoresState] = useState({});
-
-            const handleStart = () => {
-                setStage('quiz');
+            const wordMap = {
+                'E': 'Extroverted',
+                'I': 'Introverted',
+                'S': 'Sensate',
+                'N': 'iNtuitive',
+                'T': 'Thinking',
+                'F': 'Feeling',
+                'J': 'Considered', // CHANGED
+                'P': 'iMpromptu'   // CHANGED
             };
 
-            const handleOptionClick = (val) => {
-                if (isAdvancing) return;
-                setIsAdvancing(true);
-                const newAnswers = [...answers];
-                newAnswers[qIndex] = val;
-                setAnswers(newAnswers);
+            // Hardcoded Jung - 100 Words Letter Descriptions
+            const letterDescriptions = {
+                'I': "For Jung, Introversion is a movement of negative relation to the object. The subject (the self) is the prime motivating factor, while the object (the external world) is secondary or even draining. The introvert interposes a subjective view between themselves and the world. Their energy defends against external claims. They are not necessarily shy, but their reality is derived from their internal reaction to impressions rather than the impressions themselves. They tend to be reflective, seeking depth over breadth, and often feel that the outer world is 'too much,' requiring a retreat to the inner citadel to recharge.",
+                'E': "Extroversion is a positive relation to the object. The subject yields to the fascinating influence of the external world. Their psychic life is played out outside themselves, among people and things. They are oriented by objective data and established moral/social laws. Their inner life is often subordinate to external necessities. They risk losing themselves in the object, becoming identical with their role or environment. However, they possess a vital capacity to adapt to life's circumstances and to maintain a healthy, active connection with the collective reality. They find solitude draining and life-giving energy in interaction.",
+                'S': "Sensation is the function that bridges the gap between the physical world and the psyche. It is the perception of reality through the five senses. In the Extroverted attitude, it perceives the object exactly as it is—the redness of the rose, the hardness of the stone. It is the supreme realism. In the Introverted attitude, it perceives the subjective impression the object makes. Sensation anchors the psyche in the here and now, preventing it from floating away into fantasy or abstract theory. It is the function of the 'Real.'",
+                'N': "Intuition is perception via the unconscious. It is a kind of instinctive comprehension that arrives at the total picture without knowing how it got there. It peers around corners. While Sensation sees the tree, Intuition sees the forest and the ecosystem's future. It is the mother of creativity and prophecy. In the Extroverted attitude, it seeks possibilities in the objective world. In the Introverted attitude, it seeks possibilities in the subjective world. It often conflicts with Sensation, as one cannot focus on 'what is' and 'what could be' simultaneously.",
+                'T': "Thinking is the function of intellectual judgment. It brings the contents of ideation into conceptual connection with one another. It seeks to satisfy the laws of logic. Extroverted Thinking builds its structure on objective facts and generally accepted ideas. Introverted Thinking builds its structure on subjective, internal premises. It cares less about facts and more about the clarity and depth of the idea itself. Both forms seek to establish an order of 'truth,' stripping away the personal and the emotional to arrive at a valid, consistent conclusion.",
+                'F': "Feeling is the function of value judgment. It is completely rational, just as Thinking is, but its logic is the logic of the heart. It assesses the worth of things. Extroverted Feeling aligns its values with objective, collective standards (manners, social harmony). Introverted Feeling aligns its values with deep, subjective, primordial images (individual conscience). Feeling gives life its flavor and direction; without it, we would know what everything is, but not what anything matters.",
+                'J': "The Judging attitude utilizes the Rational functions (Thinking and Feeling) to manage life. It is characterized by a desire for closure. The Judging mind wants to categorize, decide, and move on. It prefers a planned, orderly existence where ambiguity is minimized. In the outer world, this manifests as punctuality, decisiveness, and a respect for rules or schedules. However, if over-relied upon, it can lead to rigidity—a refusal to adapt to new information because the mind has already 'decided.'",
+                'P': "The Perceiving attitude utilizes the Irrational functions (Sensation and Intuition) to navigate life. It is characterized by a desire for openness. The Perceiving mind wants to gather more data, see more possibilities, and experience the moment fully before—or instead of—coming to a conclusion. It prefers a flexible, spontaneous existence where the unexpected is welcomed. In the outer world, this manifests as adaptability, curiosity, and a 'wait and see' approach. If over-relied upon, it can lead to aimlessness."
+            };
+
+            // Hardcoded Jung - 100 Words Personality Descriptions
+            const personalityDescriptions = {
+                'ISTC(J)': "The Introverted Sensation type is the archetype of the reliable guardian. Their consciousness is focused on the subjective intensity of sensory impressions, which they store and organize meticulously. Every new event is instantly compared against this vast internal library of past experiences, making them excellent at spotting discrepancies and maintaining continuity. They are not swayed by passing fads; they trust what has been proven to work. Their logic is applied to defend this inner reality, resulting in a character that is systematic, dutiful, and deeply grounded. They bring order to the world by upholding traditions and honoring their commitments.",
+                'ISFC(J)': "The Introverted Sensation type with Feeling combines the subjective sensory grounding of the ISTJ with a profound focus on human values. They perceive the world through detailed internal impressions, but their judgment is driven by a need for harmony and care. They are the quiet protectors, often working behind the scenes to ensure the practical needs of others are met. Their loyalty is immense, often identifying closely with a group or family. While they may appear reserved, their inner world is warm and sympathetic. They maintain the social fabric by remembering the details that make people feel valued and safe.",
+                'INFC(J)': "The Introverted Intuition type lives in a world of inner images and archetypes. They are less concerned with the surface reality of things and more with the hidden processes and meanings behind them. Their intuition functions like an inner eye, perceiving the 'seeds' of the future before they sprout. This gives them a prophetic or mystical quality. They are often driven by a deep conviction or vision that they feel compelled to express or fulfill. Their challenge is to translate these complex, often wordless insights into a form that the outer world can understand and accept.",
+                'INTC(J)': "The Introverted Intuition type with Thinking is the strategic mastermind. Like the INFJ, they are driven by an inner vision of possibility, but they process this vision through a rigorous, objective logic. They are not content to simply 'see' the future; they must build it. They view the world as a chessboard of systems to be optimized and reorganized. Independent and often skeptical of authority, they trust their own insight above all else. They are ruthless in their pursuit of efficiency and truth, willing to tear down established structures if they impede the realization of their long-range plans.",
+                'ISTM(P)': "The Introverted Thinking type is the detached analyst of the concrete world. They use their thinking function to construct a complex, internal model of how things work. They are typically quiet observers, gathering factual data until they understand the underlying logic of a system. Unlike the abstract scientist, the ISTP applies this logic to immediate, tangible reality—tools, machines, or crises. They are adaptable and economical in their actions, moving with a cool, rational precision. They value autonomy above all, resisting external rules that clash with their own internal logical principles. They are the masters of the 'art of the possible.'",
+                'ISFM(P)': "The Introverted Feeling type is the archetype of the silent artist. Their life is guided by a differentiated and intensive inner feeling process. These values are rarely articulated in words, which can seem inadequate, but are expressed through their actions, demeanor, and aesthetic choices. They seek a profound harmony between their inner truth and their outer life. They can appear cool or aloof on the surface, but inside burns a passionate intensity. They perceive the world with a heightened sensory awareness, seeking to capture the beauty and tragedy of the moment without imposing a judgment upon it.",
+                'INFM(P)': "The Introverted Feeling type with Intuition is the idealistic dreamer and healer. Their primary orientation is toward a deep, idiosyncratic system of inner values. Unlike the ISFP, who expresses this through sensory action, the INFP explores it through possibilities and language. They are searching for a reflection of their inner ideal in the outer world. They are sensitive to inauthenticity and are driven by a desire to heal the split between 'what is' and 'what ought to be.' They are the writers and prophets of the heart, often sacrificing their own comfort for a cause that aligns with their moral vision.",
+                'INTM(P)': "The Introverted Thinking type with Intuition is the architect of pure reason. They are driven to build accurate internal models of the universe. Their mind is a laboratory where ideas are tested for logical consistency. They are less interested in the practical value of an idea than in its theoretical correctness. They are skeptical, precise, and deeply intellectual. Their intuition provides them with flashes of possibility, which their thinking then dissects and systematizes. They can be oblivious to social niceties or physical surroundings, living almost entirely in a world of abstract concepts and intellectual exploration.",
+                'ESTM(P)': "The Extroverted Sensation type is the ultimate realist. They are fully immersed in the stream of objective events. To them, the only thing that matters is the 'here and now.' They are vital, energetic, and driven by a hunger for sensory experience. They do not analyze motives or ponder the future; they act. They are often found in high-stakes environments where quick reflexes and adaptability are key. They have an uncanny ability to see things exactly as they are, without the filter of sentiment or theory, making them excellent problem-solvers in concrete, chaotic situations.",
+                'ESFM(P)': "The Extroverted Sensation type with Feeling is the lover of life. Like the ESTP, they are grounded in the present reality, but their orientation is towards people and shared experiences. They approach the world with a warm, realistic optimism. They love material comforts, good food, and social gatherings. They are the most generous and hospitable of types, seeking to make every moment enjoyable. They rely on their senses to navigate relationships, noticing the physical needs and moods of others instantly. They avoid complex analysis, preferring to live fully and harmoniously in the moment.",
+                'ENFM(P)': "The Extroverted Intuition type is the inspirer and the change-agent. They perceive the world not as a collection of objects, but as a web of fascinating possibilities. They are constantly scanning the environment for potential—in people, in projects, in ideas. They are magnetic and enthusiastic, able to rally others to their cause. However, they often loathe routine and detail. Once a possibility has been explored and the mystery is gone, they are ready to move on to the next adventure. They live for the 'spark' of creation and the discovery of new connections.",
+                'ENTM(P)': "The Extroverted Intuition type with Thinking is the innovator and the debater. They use their intuition to see how systems can be changed or exploited, and their thinking to explain why. They are alert, outspoken, and enjoy the mental gymnastics of argument. They are not bound by tradition; in fact, they enjoy dismantling it to see if a better way exists. They are entrepreneurial in spirit, always looking for the next big idea or the leverage point in a situation. They can be inconsistent, as their loyalty is to the flow of ideas rather than to people or established procedures.",
+                'ESTC(J)': "The Extroverted Thinking type is the natural organizer of society. They trust objective facts and universal rules. They feel a strong responsibility to ensure that the environment is structured, logical, and efficient. They are the administrators who enforce the law and the managers who ensure the job gets done. They value competence, clarity, and closure. They may seem rigid to more spontaneous types, but their rigidity comes from a deep commitment to justice and order. They express their values by doing their duty and ensuring that everyone else does theirs.",
+                'ESFC(J)': "The Extroverted Feeling type is the harmonizer of the community. They orient themselves by the objective values of their culture—what is considered 'good,' 'polite,' and 'appropriate.' They are deeply attuned to the emotional atmosphere of their environment and work tirelessly to keep it positive. They are the hosts, the caregivers, and the upholders of social tradition. They do not seek to change the world, but to care for the people in it. They need to feel appreciated and connected, and and they thrive in environments where cooperation and shared values are the norm.",
+                'ENFC(J)': "The Extroverted Feeling type with Intuition is the charismatic pedagogue or leader. They are driven by a desire to help others realize their potential. They possess a unique ability to 'empathize' with a crowd, instinctively knowing what to say to inspire and motivate. They are often found in roles where they can guide, teach, or counsel. They are idealists who organize people not just for efficiency, but for growth. They can sometimes be over-involved in the lives of others, but their intent is almost always to foster harmony and development on a large scale.",
+                'ENTC(J)': "The Extroverted Thinking type with Intuition is the natural born leader and executive. They have a drive to organize and lead, but unlike the ESTJ who maintains order, the ENTJ seeks to create new order. They are strategic and focus on the long-term validity of their plans. They are objective, decisive, and often intellectually intimidating. They see inefficiency as a personal failing and are relentless in eliminating it. They are happy to take charge and have little patience for confusion or half-measures. They build systems that are designed to last and to conquer."
+            };
+            
+            // --- NEW: Data for the profile grid ---
+            const profileGridData = [
+                { type: 'ISTC(J)', title: "Life's Natural Organizers", color: 'a' },
+                { type: 'ISFC(J)', title: "Committed to Getting the Job Done", color: 'b' },
+                { type: 'INFC(J)', title: "An Inspiring Leader and Follower", color: 'a' },
+                { type: 'INTC(J)', title: "Life's Independent Thinkers", color: 'b' },
+
+                /* --- ROW 2 AND 3 SWAPPED --- */
+                /* --- MODIFIED: Alternating colors for chess pattern --- */
+                { type: 'ESTM(P)', title: "Making the Most of the Moment", color: 'b' },
+                { type: 'ESFM(P)', title: "Let's Make Work Fun", color: 'a' },
+                { type: 'ENFM(P)', title: "People Are the Product", color: 'b' },
+                { type: 'ENTM(P)', title: "Progress Is the Product", color: 'a' },
+
+                { type: 'ISTM(P)', title: "Just Do It", color: 'a' },
+                { type: 'ISFM(P)', title: "Action Speaks Louder Than Words", color: 'b' },
+                { type: 'INFM(P)', title: "Making Life Kinder and Gentler", color: 'a' },
+                { type: 'INTM(P)', title: "Life's Problem Solvers", color: 'b' },
+                /* --- END MODIFIED --- */
+                /* --- END SWAP --- */
+
+                { type: 'ESTC(J)', title: "Life's Natural Administrators", color: 'b' },
+                { type: 'ESFC(J)', title: "Everyone's Trusted Friend", color: 'a' },
+                { type: 'ENFC(J)', title: "Smooth-Talking Persuaders", color: 'b' },
+                { type: 'ENTC(J)', title: "Life's Natural Leaders", color: 'a' },
+            ];
+
+            /* === NEW: Descriptions for the Chart Bubbles === */
+            const chartDescriptions = {
+                'E': {
+                    question: "Where do I get my energy from? How do I relate to the outer world?",
+                    answer: "I mainly direct my energy towards the outer world of people and things. I tend to act first and reflect later. Interaction stimulates me, and I often feel energized after being active and social."
+                },
+                'I': {
+                    question: "Where do I get my energy from? How do I relate to the outer world?",
+                    answer: "I mainly direct my energy towards the inner world of experiences and ideas. I tend to reflect first and act later. I value privacy and often need time alone to recharge after social interaction."
+                },
+                'S': {
+                    question: "How do I take in Information? Find out about things?",
+                    answer: "I focus on what is real and actual. I value practical application and trust information that I can confirm with my five senses. I pay attention to details and the present moment."
+                },
+                'N': {
+                    question: "How do I take in Information? Find out about things?",
+                    answer: "I focus on patterns and meanings. I value imagination and inspiration, trusting my intuition and hunches. I am often more interested in future possibilities and the 'big picture' than specific details."
+                },
+                'T': {
+                    question: "How do I make decisions?",
+                    answer: "I prefer to make decisions based on logic and objective analysis. I search for the truth and principles that apply in a given situation. I strive to be impartial and value consistency."
+                },
+                'F': {
+                    question: "How do I make decisions?",
+                    answer: "I prefer to make decisions based on values and subjective evaluation. I am concerned with harmony and how the decision will affect the people involved. I strive to be compassionate and empathetic."
+                },
+                'J': {
+                    question: "How do I organise my outer world?",
+                    answer: "I prefer a planned and organized approach to life. I like to have things settled and decided. I enjoy making lists, schedules, and bringing closure to tasks."
+                },
+                'P': {
+                    question: "How do I organise my outer world?",
+                    answer: "I prefer a flexible and spontaneous approach to life. I like to keep my options open and adapt to new information as it arises. I feel comfortable going with the flow."
+                }
+            };
+            /* === END NEW === */
+
+            // --- App State ---
+            let currentQuestionIndex = 0;
+            let userAnswers = new Array(questions.length).fill(null);
+            // let resultsChartInstance = null; // --- REMOVED Chart.js instance variable ---
+            // let converseChartInstance = null; 
+            let isAdvancing = false; 
+ 
+            // --- DOM Elements ---
+            const coverPage = document.getElementById('coverPage');
+            const startBtn = document.getElementById('startBtn');
+            const quizSection = document.getElementById('quizSection');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const resultsPage = document.getElementById('resultsPage');
+            const printBtn = document.getElementById('printBtn'); // --- MODIFIED: Was restartBtn
+            const randomBtn = document.getElementById('randomBtn'); 
+            const personalityTypeEl = document.getElementById('personalityType'); 
+            const personalityWordsEl = document.getElementById('personalityWords'); 
+            const qContainer = document.getElementById('q-container');
+            const qNumber = document.getElementById('q-number');
+            const qText = document.getElementById('q-text');
+            const qOption0 = document.getElementById('q-option-0');
+            const qOption1 = document.getElementById('q-option-1');
+            const qLabel0 = document.getElementById('q-label-0');
+            const qLabel1 = document.getElementById('q-label-1');
+            const qRadio0 = document.getElementById('option0'); 
+            const qRadio1 = document.getElementById('option1'); 
+
+            // --- NEW: Modal and Grid DOM Elements ---
+            const profileGrid = document.getElementById('profileGrid');
+            const profileModal = document.getElementById('profileModal');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalDescription = document.getElementById('modalDescription');
+
+            // --- Functions ---
+
+            // --- NEW: Function to populate the 16-profile grid ---
+            function populateProfileGrid() {
+                if (!profileGrid) return;
+                profileGrid.innerHTML = ''; // Clear existing
+                
+                profileGridData.forEach(profile => {
+                    const cell = document.createElement('div');
+                    cell.className = 'profile-cell ' + (profile.color === 'a' ? 'cell-color-a' : 'cell-color-b');
+                    cell.dataset.type = profile.type; // This will be "ISTC(J)" etc.
+                    
+                    /* === MODIFICATION START: Updated to show small (J) and (P) in grid === */
+                    cell.innerHTML = `
+                        <div class="profile-cell-type">${profile.type.replace('C(J)', 'C<span class="suffix">(J)</span>').replace('M(P)', 'M<span class="suffix">(P)</span>')}</div>
+                        <div class="profile-cell-title">${profile.title}</div>
+                    `;
+                    /* === MODIFICATION END === */
+                    
+                    // Add click listener to show modal
+                    cell.addEventListener('click', () => {
+                        // Find description using the modified key
+                        const description = personalityDescriptions[profile.type]; 
+                        
+                        if (description) {
+                            showProfileModal(profile.type, profile.title, description);
+                        } else {
+                            console.error('Could not find description for type:', profile.type);
+                        }
+                    });
+
+                    profileGrid.appendChild(cell);
+                });
+            }
+
+            // --- NEW: Functions to show/hide the profile modal ---
+            // --- MODIFIED: showProfileModal to accept all data ---
+            function showProfileModal(type, title, description) {
+                modalTitle.innerHTML = type.replace('C(J)', 'C<span class="suffix">(J)</span>').replace('M(P)', 'M<span class="suffix">(P)</span>');
+                modalSubtitle.textContent = title;
+                modalDescription.textContent = description;
+                
+                profileModal.style.display = 'flex';
+            }
+
+            function hideProfileModal() {
+                profileModal.style.display = 'none';
+            }
+            // --- END NEW ---
+
+
+            function showQuestion(isInitial = false) {
+                const question = questions[currentQuestionIndex];
+                const [letter1_raw, letter2_raw] = question.type.split('/');
+                const letter1 = letter1_raw.trim();
+                const letter2 = letter2_raw.trim();
+
+                const transitionTime = isInitial ? 0 : 200; 
+
+                if (!isInitial) {
+                    qContainer.classList.add('transitioning');
+                }
 
                 setTimeout(() => {
-                    if (qIndex < questions.length - 1) {
-                        setQIndex(qIndex + 1);
-                    } else {
-                        // If last question, just stay to allow finish
+                    qNumber.textContent = currentQuestionIndex + 1;
+                    qText.textContent = question.text;
+                    
+                    qLabel0.textContent = question.options[0];
+                    qOption0.dataset.value = letter1;
+                    qRadio0.value = letter1;
+
+                    qLabel1.textContent = question.options[1];
+                    qOption1.dataset.value = letter2;
+                    qRadio1.value = letter2;
+
+                    qOption0.classList.remove('selected');
+                    qOption1.classList.remove('selected');
+                    qRadio0.checked = false;
+                    qRadio1.checked = false;
+
+                    const previousAnswer = userAnswers[currentQuestionIndex];
+                    if (previousAnswer) {
+                        if (previousAnswer === letter1) {
+                            qOption0.classList.add('selected');
+                            qRadio0.checked = true;
+                        } else if (previousAnswer === letter2) {
+                            qOption1.classList.add('selected');
+                            qRadio1.checked = true;
+                        }
                     }
-                    setIsAdvancing(false);
-                }, 200);
-            };
 
-            const handlePrev = () => {
-                if (qIndex > 0) setQIndex(qIndex - 1);
-            };
+                    updateNavigation();
 
-            const handleFinish = () => {
-                calculateResults(answers);
-            };
+                    if (!isInitial) {
+                        qContainer.style.transform = 'translateY(10px)';
+                        qContainer.style.transition = 'none'; 
+                        void qContainer.offsetHeight; 
+                        qContainer.style.transition = 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out';
+                        qContainer.style.transform = 'translateY(0)';
+                        qContainer.classList.remove('transitioning'); 
+                    } else {
+                        qContainer.style.opacity = 1; 
+                    }
+                    
+                    isAdvancing = false;
 
-            const calculateResults = (currentAnswers) => {
+                }, transitionTime);
+            }
+
+            function handleOptionClick(optionEl) {
+                if (isAdvancing) return; 
+                isAdvancing = true; 
+
+                const selectedValue = optionEl.dataset.value;
+                userAnswers[currentQuestionIndex] = selectedValue;
+
+                qOption0.classList.remove('selected');
+                qOption1.classList.remove('selected');
+                optionEl.classList.add('selected');
+                
+                if (optionEl === qOption0) {
+                    qRadio0.checked = true;
+                } else {
+                    qRadio1.checked = true;
+                }
+
+                setTimeout(() => {
+                    if (currentQuestionIndex < questions.length - 1) {
+                        currentQuestionIndex++;
+                        showQuestion(); 
+                    } else {
+                        updateNavigation();
+                        isAdvancing = false; 
+                    }
+                }, 200); 
+            }
+
+            function updateNavigation() {
+                prevBtn.disabled = currentQuestionIndex === 0;
+                nextBtn.style.display = 'none'; 
+                
+                if (currentQuestionIndex === questions.length - 1) {
+                    finishBtn.style.display = 'inline-block';
+                    const allAnswered = userAnswers.every(answer => answer !== null);
+                    finishBtn.disabled = !allAnswered;
+                } else {
+                    finishBtn.style.display = 'none';
+                }
+            }
+            
+            // --- Helper function to format the letter for display ---
+            function formatLetter(letter) {
+                if (letter === 'J') return 'C(J)';
+                if (letter === 'P') return 'M(P)';
+                return letter;
+            }
+
+            // --- Helper function to format the type string ---
+            function formatTypeString(type) {
+                return type
+                    .replace('J', 'C<span class="suffix">(J)</span>')
+                    .replace('P', 'M<span class="suffix">(P)</span>');
+            }
+
+            // --- MODIFIED: Restored and corrected showResults function ---
+            function showResults() {
+                quizSection.style.display = 'none';
+                resultsPage.style.display = 'block';
+
                 const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
-                currentAnswers.forEach(a => { if (a) scores[a]++; });
-                scores.E *= 2; scores.I *= 2;
+                userAnswers.forEach(answer => {
+                    if (answer) {
+                        scores[answer]++;
+                    }
+                });
+
+                scores.E *= 2;
+                scores.I *= 2;
                 
                 const maxScores = { E: 22, I: 22, S: 23, N: 23, T: 23, F: 23, J: 23, P: 23 };
-                const getPercent = (l) => (Math.min(scores[l], 20) / maxScores[l]) * 100;
 
-                const fData = [];
-                const oLetters = [];
-
-                if (scores.E >= scores.I) { fData.push({ letter: 'E', score: getPercent('E') }); oLetters.push('I'); }
-                else { fData.push({ letter: 'I', score: getPercent('I') }); oLetters.push('E'); }
-
-                if (scores.S >= scores.N) { fData.push({ letter: 'S', score: getPercent('S') }); oLetters.push('N'); }
-                else { fData.push({ letter: 'N', score: getPercent('N') }); oLetters.push('S'); }
-
-                if (scores.T >= scores.F) { fData.push({ letter: 'T', score: getPercent('T') }); oLetters.push('F'); }
-                else { fData.push({ letter: 'F', score: getPercent('F') }); oLetters.push('T'); }
-
-                if (scores.J >= scores.P) { fData.push({ letter: 'J', score: getPercent('J') }); oLetters.push('P'); }
-                else { fData.push({ letter: 'P', score: getPercent('P') }); oLetters.push('J'); }
-
-                setFinalData(fData);
-                setOtherLetters(oLetters);
-                setTypeString(fData.map(d => d.letter).join(''));
-                setScoresState(scores);
-                setMaxScoresState(maxScores);
-                setStage('results');
-            };
-
-            const renderCharts = () => {
-                if (stage !== 'results') return;
-                
-                // Main Chart
-                const svg = d3.select("#mainResultsChart");
-                svg.html("");
-                const margin = { top: 40, right: 20, bottom: 50, left: 40 };
-                const width = 600 - margin.left - margin.right;
-                const height = 400 - margin.top - margin.bottom;
-                const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-                
-                const x = d3.scaleBand().domain(finalData.map(d => d.letter)).range([0, width]).padding(0.4);
-                const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
-                const d3ColorMap = { 'E': '#eae400', 'I': '#44b3e1', 'S': '#ff9900', 'N': '#782170', 'T': '#215c98', 'F': '#4ea72e', 'J': '#eb1515', 'P': '#996633' };
-
-                g.append("g").attr("class", "grid").call(d3.axisLeft(y).tickSize(-width).tickFormat(() => "").tickValues([0, 100])).call(sel => sel.select(".domain").remove()).selectAll(".tick line").attr("stroke", "#ccc");
-                
-                g.append("g").attr("class", "axis").attr("transform", `translate(0,${height})`)
-                 .call(d3.axisBottom(x).tickSize(0).tickPadding(10).tickFormat(d => d === 'J' ? 'C(J)' : d === 'P' ? 'M(P)' : d))
-                 .call(sel => sel.select(".domain").remove())
-                 .selectAll("text").attr("font-family", "Poppins").style("font-size", "28px").attr("font-weight", "600").attr("fill", "#2c3e50");
-
-                const bars = g.selectAll(".bar-group").data(finalData).join("g").attr("transform", d => `translate(${x(d.letter)}, 0)`);
-                
-                bars.append("rect").attr("class", "chart-bar-rect").attr("x", 0).attr("y", d => y(d.score)).attr("width", x.bandwidth()).attr("height", d => height - y(d.score)).attr("fill", d => d3ColorMap[d.letter]).attr("rx", 5)
-                    .on("click", (e, d) => showBubbleInfo(d.letter));
-
-                const bubbles = bars.append("g").attr("class", "chart-bubble-group").attr("transform", d => `translate(${x.bandwidth() / 2}, ${y(d.score) - 25})`)
-                    .on("click", (e, d) => showBubbleInfo(d.letter));
-                
-                bubbles.append("circle").attr("r", 15).attr("fill", "#fff").attr("stroke", d => d3ColorMap[d.letter]).attr("stroke-width", 2);
-                bubbles.append("text").text("?").attr("text-anchor", "middle").attr("dominant-baseline", "central").attr("fill", "#555").style("font-family", "Poppins").style("font-size", "18px").style("font-weight", "700").style("pointer-events", "none");
-
-                // Converse Chart
-                if (!showConverse) return;
-                const cvSvg = d3.select("#converseResultsChart");
-                cvSvg.html("");
-                const cvWidth = 960 - margin.left - margin.right;
-                const cvHeight = 500 - margin.top - margin.bottom;
-                const cvG = cvSvg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-                
-                const getD3Percent = (l, opp) => {
-                    const real = scoresState[l];
-                    const max = maxScoresState[l];
-                    const oppReal = scoresState[opp];
-                    if (real > 20) return (20 / max) * 100;
-                    if (oppReal > 20) return ((max - 20) / max) * 100;
-                    return (real / max) * 100;
+                const colorMap = {
+                    /* === MODIFICATION HERE: Swapped E (Yellow) and I (Blue) === */
+                    'E': { bg: 'rgba(234, 228, 0, 0.9)', border: 'rgba(234, 228, 0, 1)' }, // Was Blue, now Yellow
+                    'I': { bg: 'rgba(68, 179, 225, 0.9)', border: 'rgba(68, 179, 225, 1)' }, // Was Yellow, now Blue
+                    /* === END MODIFICATION === */
+                    'S': { bg: 'rgba(255, 153, 0, 0.9)', border: 'rgba(255, 153, 0, 1)' },
+                    'N': { bg: 'rgba(120, 33, 112, 0.9)', border: 'rgba(120, 33, 112, 1)' },
+                    'T': { bg: 'rgba(33, 92, 152, 0.9)', border: 'rgba(33, 92, 152, 1)' },
+                    'F': { bg: 'rgba(78, 167, 46, 0.9)', border: 'rgba(78, 167, 46, 1)' },
+                    'J': { bg: 'rgba(235, 21, 21, 0.9)', border: 'rgba(235, 21, 21, 1)' },
+                    'P': { bg: 'rgba(153, 102, 51, 0.9)', border: 'rgba(153, 102, 51, 1)' }
                 };
 
-                const cvData = [
+                // --- FIX: Restored getPercent function definition ---
+                const getPercent = (letter) => {
+                    const realScore = scores[letter];
+                    const maxScore = maxScores[letter];
+                    // Cap the score used for the percentage calculation at 20
+                    const scoreForPercent = Math.min(realScore, 20); 
+                    // Calculate percentage based on the capped score but the REAL max score
+                    return (scoreForPercent / maxScore) * 100;
+                };
+                // --- END FIX ---
+
+                const finalData = [];
+                const otherLetters = []; 
+                let realScore, maxScore, percentage; 
+
+                if (scores.E >= scores.I) {
+                    realScore = scores.E;
+                    maxScore = maxScores.E; 
+                    percentage = getPercent('E');
+                    finalData.push({ letter: 'E', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('I'); 
+                } else {
+                    realScore = scores.I;
+                    maxScore = maxScores.I; 
+                    percentage = getPercent('I');
+                    finalData.push({ letter: 'I', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('E'); 
+                }
+
+                if (scores.S >= scores.N) {
+                    realScore = scores.S;
+                    maxScore = maxScores.S; 
+                    percentage = getPercent('S');
+                    finalData.push({ letter: 'S', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('N'); 
+                } else {
+                    realScore = scores.N;
+                    maxScore = maxScores.N; 
+                    percentage = getPercent('N');
+                    finalData.push({ letter: 'N', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('S'); 
+                }
+
+                if (scores.T >= scores.F) {
+                    realScore = scores.T;
+                    maxScore = maxScores.T; 
+                    percentage = getPercent('T');
+                    finalData.push({ letter: 'T', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('F'); 
+                } else {
+                    realScore = scores.F;
+                    maxScore = maxScores.F; 
+                    percentage = getPercent('F');
+                    finalData.push({ letter: 'F', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('T'); 
+                }
+
+                if (scores.J >= scores.P) {
+                    realScore = scores.J;
+                    maxScore = maxScores.J; 
+                    percentage = getPercent('J');
+                    finalData.push({ letter: 'J', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('P'); 
+                } else {
+                    realScore = scores.P;
+                    maxScore = maxScores.P; 
+                    percentage = getPercent('P');
+                    finalData.push({ letter: 'P', score: percentage, realScore: realScore, maxScore: maxScore }); 
+                    otherLetters.push('J'); 
+                }
+                
+                // --- MODIFIED: Use formatted letters for chart labels ---
+                const chartLabels = finalData.map(d => formatLetter(d.letter)); // e.g., ["E", "S", "T", "C(J)"]
+                
+                const chartData = finalData.map(d => d.score); // This is now percentage
+                const chartRealScores = finalData.map(d => d.realScore); 
+                const chartMaxScores = finalData.map(d => d.maxScore); 
+                const chartBackgroundColors = finalData.map(d => colorMap[d.letter].bg);
+                const chartBorderColors = finalData.map(d => colorMap[d.letter].border);
+
+                // --- MODIFIED: Create the type string (e.g., ESTC(J)) ---
+                const personalityTypeString = chartLabels.join(''); // "ESTC(J)"
+                const rawTypeString = finalData.map(d => d.letter).join(''); // "ESTJ"
+                
+                // --- NEW: Highlight the result in the profile grid ---
+                // First, clear any existing highlights
+                document.querySelectorAll('.profile-cell.highlight').forEach(cell => {
+                    cell.classList.remove('highlight');
+                });
+                
+                // Then, add the highlight to the matching cell
+                const resultCell = document.querySelector(`.profile-cell[data-type="${personalityTypeString}"]`);
+                if (resultCell) {
+                    resultCell.classList.add('highlight');
+                }
+                // --- END NEW ---
+                
+                // --- MODIFIED: Create opposite type string ---
+                const oppositeTypeStringFormatted = otherLetters.map(formatLetter).join(''); // "INFM(P)"
+                const oppositeTypeStringRaw = otherLetters.join(''); // "INFP"
+                
+                // --- NEW: Get and set opposite profile description ---
+                const oppositeDescription = personalityDescriptions[oppositeTypeStringFormatted];
+                const oppositeDescEl = document.getElementById('oppositeDesc');
+                if (oppositeDescEl) {
+                    oppositeDescEl.textContent = oppositeDescription || "Description for this type is not available.";
+                }
+                // --- END NEW ---
+                
+                const personalityWordsArray = finalData.map(d => {
+                    const letter = d.letter; // 'E', 'I', 'S', 'N', 'T', 'F', 'J', 'P'
+                    const fullWord = wordMap[letter]; // 'Extroverted', 'Considered', 'iMpromptu'
+                    
+                    if (letter === 'J') {
+                        return `<strong>C</strong>onsidered<span class="suffix">(judging)</span>`;
+                    }
+                    if (letter === 'P') {
+                        return `i<strong>M</strong>promptu<span class="suffix">(perceiving)</span>`;
+                    }
+                    
+                    const keyIndex = fullWord.toLowerCase().indexOf(letter.toLowerCase());
+                    if (keyIndex === -1) { return fullWord; }
+                    
+                    const before = fullWord.substring(0, keyIndex); 
+                    const keyChar = fullWord.substring(keyIndex, keyIndex + 1); 
+                    const after = fullWord.substring(keyIndex + 1); 
+                    return `${before}<strong>${keyChar}</strong>${after}`;
+                });
+                const personalityWordsHTML = personalityWordsArray.join(' - ');
+
+                if (personalityTypeEl) {
+                    // --- MODIFIED: Use formatTypeString helper ---
+                    personalityTypeEl.innerHTML = formatTypeString(rawTypeString);
+                }
+                if (personalityWordsEl) {
+                    personalityWordsEl.innerHTML = personalityWordsHTML; 
+                }
+
+                const oppositeHeaderEl = document.getElementById('oppositeTypeHeader');
+                if (oppositeHeaderEl) {
+                    // --- MODIFIED: Use formatTypeString helper ---
+                    oppositeHeaderEl.innerHTML = `Your converse profile: ${formatTypeString(oppositeTypeStringRaw)}`; 
+                }
+
+                const letterGrid = document.getElementById('letter-grid');
+                if (finalData.length === 4) {
+                    letterGrid.style.display = 'grid'; 
+                    for (let i = 0; i < 4; i++) {
+                        const letter = finalData[i].letter; // 'E', 'S', 'T', 'J'
+                        const fullWord = wordMap[letter]; // 'Extroverted', 'Sensate', 'Thinking', 'Considered'
+                        const description = letterDescriptions[letter];
+                        const color = colorMap[letter].border; 
+                        const bgColor = color.replace(', 1)', ', 0.1)');
+
+                        const cardElement = document.getElementById(`letter-card-${i}`); 
+                        
+                        cardElement.style.borderColor = color;
+                        cardElement.style.backgroundColor = bgColor; 
+
+                        // --- MODIFIED: Add suffix for J/P ---
+                        let titleHTML = fullWord;
+                        if (letter === 'J') {
+                            titleHTML += `<span class="suffix">(judging)</span>`;
+                        } else if (letter === 'P') {
+                            titleHTML += `<span class="suffix">(perceiving)</span>`;
+                        }
+                        document.getElementById(`letter-title-${i}`).innerHTML = titleHTML;
+                        document.getElementById(`letter-desc-${i}`).textContent = description;
+                    }
+                } else {
+                    letterGrid.style.display = 'none'; 
+                }
+
+                const otherLetterGrid = document.getElementById('other-letter-grid');
+                if (otherLetters.length === 4) {
+                    for (let i = 0; i < 4; i++) {
+                        const letter = otherLetters[i]; // 'I', 'N', 'F', 'P'
+                        const fullWord = wordMap[letter]; // 'Introverted', 'iNtuitive', 'Feeling', 'iMpromptu'
+                        const description = letterDescriptions[letter];
+                        const color = colorMap[letter].border;
+
+                        const cardElement = document.getElementById(`other-letter-card-${i}`);
+                        
+                        cardElement.style.borderColor = color;
+                        
+                        // --- MODIFIED: Add suffix for J/P ---
+                        let titleHTML = fullWord;
+                        if (letter === 'J') {
+                            titleHTML += `<span class="suffix">(judging)</span>`;
+                        } else if (letter === 'P') {
+                            titleHTML += `<span class="suffix">(perceiving)</span>`;
+                        }
+                        document.getElementById(`other-letter-title-${i}`).innerHTML = titleHTML;
+                        document.getElementById(`other-letter-desc-${i}`).textContent = description;
+                    }
+                }
+
+                // --- MODIFIED: Use formatted string for description key ---
+                const description = personalityDescriptions[personalityTypeString] || "Your personality description will appear here.";
+                document.getElementById('desc-overview').textContent = description;
+                
+                // --- MODIFIED: Replaced Chart.js logic with D3 Main Chart logic ---
+                createD3MainChart(finalData);
+                // --- END MODIFICATION ---
+
+                // --- NEW: Call D3 chart creation function ---
+                createD3ConverseChart(scores, maxScores);
+                // --- END NEW ---
+
+            }
+            // --- END OF SHOWRESULTS FUNCTION ---
+            
+            // --- NEW: D3 Main Chart Function (Replaces Chart.js) ---
+            function createD3MainChart(data) {
+                // data is array of { letter, score, realScore, maxScore }
+                
+                const d3ColorMap = {
+                    'E': '#eae400', 
+                    'I': '#44b3e1',
+                    'S': '#ff9900',
+                    'N': '#782170',
+                    'T': '#215c98',
+                    'F': '#4ea72e',
+                    'J': '#eb1515',
+                    'P': '#996633'
+                };
+
+                const svg = d3.select("#mainResultsChart");
+                svg.html(""); // Clear previous chart
+
+                // Increased top margin to fit bubbles comfortably
+                const margin = { top: 40, right: 20, bottom: 50, left: 40 }; 
+                const viewBox = svg.attr("viewBox").split(" ");
+                const width = +viewBox[2] - margin.left - margin.right;
+                const height = +viewBox[3] - margin.top - margin.bottom;
+
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                // X Scale
+                const x = d3.scaleBand()
+                    .domain(data.map(d => d.letter))
+                    .range([0, width])
+                    .padding(0.4);
+
+                // Y Scale
+                const y = d3.scaleLinear()
+                    .domain([0, 100])
+                    .range([height, 0]);
+
+                /* === MODIFICATION: Restored Grid lines for 0 and 100 ONLY === */
+                // Grid lines
+                 g.append("g")
+                    .attr("class", "grid")
+                    .call(d3.axisLeft(y)
+                        .tickSize(-width) // Extend lines across the chart
+                        .tickFormat("") // No labels
+                        .tickValues([0, 100]) // Only at 0 and 100
+                    )
+                    .call(g => g.select(".domain").remove()) // Remove the axis line itself
+                    .call(g => g.selectAll(".tick line")
+                        .attr("stroke", "#ccc") 
+                        .attr("stroke-opacity", 1));
+                /* === END MODIFICATION === */
+
+                // X Axis with custom labels
+                /* === MODIFICATION: Added .tickSize(0) to remove vertical ticks === */
+                const xAxis = d3.axisBottom(x)
+                    .tickSize(0) // Removes the little vertical lines
+                    .tickPadding(10) // Adds a bit of space between bar and text
+                    .tickFormat(d => {
+                        if (d === 'J') return 'C(J)';
+                        if (d === 'P') return 'M(P)';
+                        return d;
+                    });
+                /* === END MODIFICATION === */
+
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(xAxis)
+                    .call(g => g.select(".domain").remove())
+                    .selectAll("text") // Style the labels
+                    .attr("font-family", "Poppins")
+                    .style("font-size", "28px") 
+                    .attr("font-weight", "600")
+                    .attr("fill", "#2c3e50");
+
+                // Bars Group
+                const bars = g.selectAll(".bar-group")
+                    .data(data)
+                    .join("g")
+                    .attr("class", "bar-group")
+                    .attr("transform", d => `translate(${x(d.letter)}, 0)`);
+
+                // Draw Bars
+                bars.append("rect")
+                    .attr("class", "chart-bar-rect")
+                    .attr("x", 0)
+                    .attr("y", d => y(d.score))
+                    .attr("width", x.bandwidth())
+                    .attr("height", d => height - y(d.score))
+                    .attr("fill", d => d3ColorMap[d.letter])
+                    .attr("rx", 5)
+                    .on("click", (event, d) => {
+                         const info = chartDescriptions[d.letter];
+                         let title = d.letter;
+                         if(d.letter === 'J') title = 'C<span class="suffix">(J)</span>';
+                         if(d.letter === 'P') title = 'M<span class="suffix">(P)</span>';
+                         showProfileModal(title, info.question, info.answer);
+                    });
+
+                /* === MODIFICATION: Explicit attributes to fix rendering issues === */
+                const bubbleGroups = bars.append("g")
+                    .attr("class", "chart-bubble-group")
+                    .attr("transform", d => `translate(${x.bandwidth() / 2}, ${y(d.score) - 25})`)
+                    .on("click", (event, d) => {
+                         const info = chartDescriptions[d.letter];
+                         let title = d.letter;
+                         if(d.letter === 'J') title = 'C<span class="suffix">(J)</span>';
+                         if(d.letter === 'P') title = 'M<span class="suffix">(P)</span>';
+                         showProfileModal(title, info.question, info.answer);
+                    });
+
+                bubbleGroups.append("circle")
+                    .attr("r", 15) 
+                    .attr("fill", "#fff") // Explicitly set white fill to prevent black dot
+                    .attr("stroke", d => d3ColorMap[d.letter])
+                    .attr("stroke-width", 2);
+
+                bubbleGroups.append("text")
+                    .text("?")
+                    .attr("text-anchor", "middle") // Center horizontally
+                    .attr("dominant-baseline", "central") // Center vertically
+                    .attr("fill", "#555") // Explicit text color
+                    .style("font-family", "Poppins, sans-serif")
+                    .style("font-size", "18px")
+                    .style("font-weight", "700")
+                    .style("pointer-events", "none");
+                /* === END MODIFICATION === */
+            }
+            // --- END NEW FUNCTION ---
+
+            // --- NEW: D3.js CHART FUNCTION (Replaces Chart.js version) ---
+            function createD3ConverseChart(scores, maxScores) {
+                
+                // 1. Data & Colors
+                // Map rgba colors to simple hex for D3
+                const d3ColorMap = {
+                    /* === MODIFICATION HERE: Swapped E (Yellow) and I (Blue) === */
+                    'E': '#eae400', // Was #44b3e1 (Blue), now Yellow
+                    'I': '#44b3e1', // Was #eae400 (Yellow), now Blue
+                    /* === END MODIFICATION === */
+                    'S': '#ff9900', // rgba(255, 153, 0, 1)
+                    'N': '#782170', // rgba(120, 33, 112, 1)
+                    'T': '#215c98', // rgba(33, 92, 152, 1)
+                    'F': '#4ea72e', // rgba(78, 167, 46, 1)
+                    'J': '#eb1515', // rgba(235, 21, 21, 1)
+                    'P': '#996633'  // rgba(153, 102, 51, 1)
+                };
+
+                // --- NEW: Custom percentage logic for D3 chart to prevent 0% bars ---
+                const getD3Percent = (letter, oppositeLetter) => {
+                    const realScore = scores[letter];
+                    const maxScore = maxScores[letter];
+                    const oppositeRealScore = scores[oppositeLetter];
+
+                    // Check if this is the WINNER and it's an extreme score (e.g., 22 or 23)
+                    if (realScore > 20) {
+                        // This is the winner, cap it at 20
+                        return (20 / maxScore) * 100;
+                    }
+
+                    // Check if this is the LOSER and the OPPOSITE is an extreme score
+                    if (oppositeRealScore > 20) {
+                        // The opposite's score is capped at 20.
+                        // This score should be the remainder.
+                        const remainder = maxScore - 20;
+                        return (remainder / maxScore) * 100;
+                    }
+
+                    // This is a "normal" score (not an extreme 0 or 23)
+                    // Just return its raw, uncapped percentage.
+                    return (realScore / maxScore) * 100;
+                };
+                // --- END NEW LOGIC ---
+
+                const data = [
                     { group: 'E / I', valueA: getD3Percent('E', 'I'), valueB: getD3Percent('I', 'E'), keyA: 'E', keyB: 'I' },
                     { group: 'S / N', valueA: getD3Percent('S', 'N'), valueB: getD3Percent('N', 'S'), keyA: 'S', keyB: 'N' },
                     { group: 'T / F', valueA: getD3Percent('T', 'F'), valueB: getD3Percent('F', 'T'), keyA: 'T', keyB: 'F' },
                     { group: 'C(J) / M(P)', valueA: getD3Percent('J', 'P'), valueB: getD3Percent('P', 'J'), keyA: 'J', keyB: 'P' }
                 ];
-
-                const x0 = d3.scaleBand().domain(cvData.map(d => d.group)).rangeRound([0, cvWidth]).padding(0.2);
-                const x1 = d3.scaleBand().domain(['valueA', 'valueB']).rangeRound([0, x0.bandwidth()]).padding(0);
-                const yCv = d3.scaleLinear().domain([0, 100]).nice().rangeRound([cvHeight, 0]);
-
-                cvG.append("g").attr("class", "grid").call(d3.axisLeft(yCv).tickSize(-cvWidth).tickFormat(() => "").tickValues([0, 100]))
-                   .call(sel => sel.select(".domain").remove()).call(sel => sel.selectAll(".tick line").attr("stroke", d => d === 100 ? '#2c3e50' : '#ccc'));
                 
-                cvG.append("line").attr("x1", x0(cvData[0].group) - 10).attr("y1", yCv(50)).attr("x2", x0(cvData[3].group) + x0.bandwidth() + 10).attr("y2", yCv(50)).attr("stroke", "#333").attr("stroke-width", 2).attr("stroke-dasharray", "6,4");
+                const groupKeys = ['valueA', 'valueB'];
 
-                cvG.append("g").attr("class", "axis").attr("transform", `translate(0,${cvHeight})`)
-                   .call(d3.axisBottom(x0).tickSize(0).tickPadding(10)).call(sel => sel.select(".domain").remove())
-                   .selectAll("text").attr("font-family", "Poppins").style("font-size", "28px").attr("font-weight", "600").attr("fill", "#2c3e50");
-
-                const cvBars = cvG.selectAll("g.layer").data(cvData).join("g").attr("transform", d => `translate(${x0(d.group)},0)`)
-                   .selectAll("rect").data(d => [{key:'valueA', val: d.valueA, l: d.keyA}, {key:'valueB', val: d.valueB, l: d.keyB}]).join("g");
+                // 2. Chart Setup
+                const svg = d3.select("#converseResultsChart");
+                svg.html(""); // Clear previous chart
                 
-                cvBars.append("rect").attr("class", "chart-bar-rect").attr("x", d => x1(d.key)).attr("width", x1.bandwidth()).attr("y", d => yCv(d.val)).attr("height", d => cvHeight - yCv(d.val)).attr("fill", d => d3ColorMap[d.l]).attr("rx", 5)
-                    .on("click", (e, d) => showBubbleInfo(d.l));
-
-                const cvBubbles = cvBars.append("g").attr("class", "chart-bubble-group").attr("transform", d => `translate(${x1(d.key) + x1.bandwidth()/2}, ${yCv(d.val) - 25})`)
-                    .on("click", (e, d) => showBubbleInfo(d.l));
+                // --- MODIFIED: Make margins smaller for a larger chart area ---
+                const margin = { top: 20, right: 20, bottom: 30, left: 40 };
                 
-                cvBubbles.append("circle").attr("r", 15).attr("fill", "#fff").attr("stroke", d => d3ColorMap[d.l]).attr("stroke-width", 2);
-                cvBubbles.append("text").text("?").attr("text-anchor", "middle").attr("dominant-baseline", "central").attr("fill", "#555").style("font-family", "Poppins").style("font-size", "18px").style("font-weight", "700").style("pointer-events", "none");
-            };
+                const viewBox = svg.attr("viewBox").split(" ");
+                const svgWidth = +viewBox[2];
+                const svgHeight = +viewBox[3];
 
-            useEffect(() => { renderCharts(); }, [finalData, showConverse, stage]);
+                const width = svgWidth - margin.left - margin.right;
+                const height = svgHeight - margin.top - margin.bottom;
 
-            const showBubbleInfo = (letter) => {
-                const info = chartDescriptions[letter];
-                let title = letter;
-                if(letter === 'J') title = 'C<span class="suffix">(J)</span>';
-                if(letter === 'P') title = 'M<span class="suffix">(P)</span>';
-                setModalData({ title, subtitle: info.question, desc: info.answer });
-            };
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const showProfileModal = (type, title) => {
-                let displayType = type.replace('J', 'C<span class="suffix">(J)</span>').replace('P', 'M<span class="suffix">(P)</span>');
-                // Use the raw key for lookup
-                const desc = personalityDescriptions[type] || "Description unavailable.";
-                setModalData({ title: displayType, subtitle: title, desc });
-            };
+                // 3. Scales
+                const x0 = d3.scaleBand()
+                    .domain(data.map(d => d.group))
+                    .rangeRound([0, width])
+                    .padding(0.2); // Space between pairs
 
-            return (
-                <div className="container">
-                    {stage === 'cover' && (
-                        <div id="coverPage">
-                            <h1 id="coverTitle" className="cover-title">The <b>J16T</b> Questionnaire<br/>(Jung 16 Temperaments)</h1>
-                            <p className="cover-copyright">exclusive to <b>ourfields.ie</b> programmes</p>
-                            <p className="cover-description">This is a instrument that describes a person's personal style, their own unique way of viewing, responding and relating to the world around them.</p>
-                            <p className="cover-description-sub">It can be used for:</p>
-                            <div className="features-list">
-                                 <div className="feature-item"><img src="conflict.png" alt="Icon" className="feature-icon" onError={(e) => e.target.src='https://placehold.co/100x100/6a11cb/ffffff?text=Icon'} /><div className="feature-text-content"><h4 className="feature-title">Improving Communications</h4><p className="feature-description">The test helps build self-esteem and manage conflict by focusing on the positive contributions of each personality type.</p></div></div>
-                                 <div className="feature-item"><img src="podium.png" alt="Icon" className="feature-icon" onError={(e) => e.target.src='https://placehold.co/100x100/2575fc/ffffff?text=Icon'} /><div className="feature-text-content"><h4 className="feature-title">Develop Individual Success</h4><p className="feature-description">The test provides practical insight into what motivates and de-motivates an individual.</p></div></div>
-                                 <div className="feature-item"><img src="self.png" alt="Icon" className="feature-icon" onError={(e) => e.target.src='https://placehold.co/100x100/6a11cb/ffffff?text=Icon'} /><div className="feature-text-content"><h4 className="feature-title">Better Self-Understanding</h4><p className="feature-description">The test helps individuals get to know themselves better, which is a source of great satisfaction.</p></div></div>
-                                 <div className="feature-item"><img src="career.png" alt="Icon" className="feature-icon" onError={(e) => e.target.src='https://placehold.co/100x100/2575fc/ffffff?text=Icon'} /><div className="feature-text-content"><h4 className="feature-title">Career Guidance</h4><p className="feature-description">Self-awareness is the key to good career guidance, as personal style affects motivation.</p></div></div>
-                            </div>
-                            <button id="startBtn" onClick={handleStart}>Begin the Evaluation</button>
-                            <p className="ourfields-copyright-bottom">ourfields.ie ©</p>
-                        </div>
-                    )}
+                const x1 = d3.scaleBand()
+                    .domain(groupKeys)
+                    .rangeRound([0, x0.bandwidth()])
+                    .padding(0); // NO space within a pair
 
-                    {stage === 'quiz' && (
-                        <div id="quizSection">
-                            <h1>JUNG TYPOLOGY</h1>
-                            <div id="questionnaire">
-                                <div className={`question-container ${isAdvancing ? 'transitioning' : ''}`} id="q-container" style={{opacity: 1, transform: 'translateY(0)'}}>
-                                    <div className="question-number">{qIndex + 1}</div>
-                                    <div className="question-text">{questions[qIndex].text}</div>
-                                    <div className="options-container">
-                                        {questions[qIndex].options.map((opt, i) => {
-                                            const val = questions[qIndex].type.split('/')[i];
-                                            const isSelected = answers[qIndex] === val;
-                                            return (
-                                                <div key={i} className={`option ${isSelected ? 'selected' : ''}`} onClick={() => handleOptionClick(val)}>
-                                                    <input type="radio" checked={isSelected} readOnly />
-                                                    <label>{opt}</label>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="navigation">
-                                <button id="prevBtn" disabled={qIndex === 0} onClick={handlePrev}>Previous</button>
-                                {qIndex === questions.length - 1 && (
-                                    <button id="finishBtn" disabled={answers.some(a => a === null)} onClick={handleFinish}>Finish</button>
-                                )}
-                            </div>
-                            <footer className="page-footer"><b>ourfields.ie</b> J16T (Jung 16 Temperaments)</footer>
-                        </div>
-                    )}
+                const yScale = d3.scaleLinear()
+                    .domain([0, 100]) // Domain is 0 to 100 percent
+                    .nice()
+                    .rangeRound([height, 0]);
 
-                    {stage === 'results' && (
-                        <div id="resultsPage">
-                            <div id="print-page-1">
-                                <h1>Your Results</h1>
-                                <div className="chart-container">
-                                    <svg id="mainResultsChart" viewBox="0 0 600 400"></svg>
-                                </div>
-                                <div className="personality-type-display" dangerouslySetInnerHTML={{__html: formatTypeString(typeString)}} />
-                                <div className="result-section-static">
-                                    <div className="personality-words-display" dangerouslySetInnerHTML={{__html: finalData.map(d => {
-                                        const full = wordMap[d.letter];
-                                        if(d.letter === 'J') return '<strong>C</strong>onsidered<span class="suffix">(judging)</span>';
-                                        if(d.letter === 'P') return 'i<strong>M</strong>promptu<span class="suffix">(perceiving)</span>';
-                                        return full.replace(d.letter, `<strong>${d.letter}</strong>`);
-                                    }).join(' - ')}} />
-                                    <p id="desc-overview" className="result-section-content">{personalityDescriptions[formatTypeKey(typeString)] || "Description not available."}</p>
-                                </div>
-                            </div>
-                            
-                            <div className="letter-definitions-grid" style={{display: finalData.length === 4 ? 'grid' : 'none'}}>
-                                 {finalData.map((d, i) => (
-                                     <details key={i} className="letter-card" style={{
-                                         borderColor: rgbaColorMap[d.letter].border,
-                                         backgroundColor: rgbaColorMap[d.letter].bg.replace(', 0.9)', ', 0.1)')
-                                     }}>
-                                         <summary className="letter-card-title" dangerouslySetInnerHTML={{__html: (wordMap[d.letter] + (d.letter==='J'?'<span class="suffix">(judging)</span>':d.letter==='P'?'<span class="suffix">(perceiving)</span>':''))}} />
-                                         <p className="letter-card-desc">{letterDescriptions[d.letter]}</p>
-                                     </details>
-                                 ))}
-                            </div>
+                /* === MODIFICATION: Restored Grid Lines for 0 and 100 ONLY === */
+                // --- NEW: Add Grid Lines (like the first chart) ---
+                g.append("g")
+                    .attr("class", "grid")
+                    .call(d3.axisLeft(yScale)
+                        .tickSize(-width) // Extend lines across the chart
+                        .tickFormat(() => "") // No labels
+                        .tickValues([0, 100]) // Only at 0 and 100
+                    )
+                    .call(g => g.select(".domain").remove()) // Remove the axis line itself
+                    .call(g => g.selectAll(".tick line")
+                        .attr("stroke", d => (d === 100 ? '#2c3e50' : '#ccc')) // Darker top line, lighter bottom
+                        .attr("stroke-opacity", 1));
+                /* === END MODIFICATION === */
+                        
+                // --- NEW: Add 50% dashed line ---
+                // --- MODIFIED: Calculate start and end points to be closer to columns ---
+                const lineStartX = x0(data[0].group) - 10; // MODIFIED: extend left
+                const lineEndX = x0(data[data.length - 1].group) + x0.bandwidth() + 10; // MODIFIED: extend right
+                
+                g.append("line")
+                    .attr("x1", lineStartX) // Start at the first bar group
+                    .attr("y1", yScale(50))
+                    .attr("x2", lineEndX) // End at the last bar group
+                    .attr("y2", yScale(50))
+                    .attr("stroke", "#333") // Dark bold color
+                    .attr("stroke-width", 2) // Bold
+                    .attr("stroke-dasharray", "6,4"); // Broken line (6 pixels on, 4 off)
 
-                            <div className="results-details">
-                                <div className="toggle-other-container">
-                                    <button className="other-toggle-btn" onClick={() => setShowConverse(!showConverse)}>
-                                        {showConverse ? 'Hide Converse Profile' : 'Show Converse Profile'}
-                                    </button>
-                                </div>
-                                {showConverse && (
-                                    <>
-                                        <div className="chart-container" id="converse-chart-container">
-                                            <svg id="converseResultsChart" viewBox="0 0 960 500"></svg>
-                                        </div>
-                                        <h3 className="opposite-type-header" dangerouslySetInnerHTML={{__html: `Your converse profile: ${formatTypeString(otherLetters.join(''))}`}} />
-                                        <p className="result-section-content" style={{fontStyle: 'italic'}}>{personalityDescriptions[formatTypeKey(otherLetters.join(''))] || "Description not available."}</p>
-                                        <div className="letter-definitions-grid" style={{display: 'grid'}}>
-                                            {otherLetters.map((l, i) => (
-                                                <details key={i} className="letter-card" style={{
-                                                    borderColor: rgbaColorMap[l].border,
-                                                    backgroundColor: rgbaColorMap[l].bg.replace(', 0.9)', ', 0.1)')
-                                                }}>
-                                                    <summary className="letter-card-title" dangerouslySetInnerHTML={{__html: (wordMap[l] + (l==='J'?'<span class="suffix">(judging)</span>':l==='P'?'<span class="suffix">(perceiving)</span>':''))}} />
-                                                    <p className="letter-card-desc">{letterDescriptions[l]}</p>
-                                                </details>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                // 4. Axes
+                
+                // X-Axis
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    /* === MODIFICATION: Added .tickSize(0) to remove vertical ticks === */
+                    .call(d3.axisBottom(x0)
+                        .tickSize(0)
+                        .tickPadding(10)
+                    )
+                    /* === END MODIFICATION === */
+                    .call(g => g.select(".domain").remove()) // --- NEW: Remove X-axis domain line ---
+                    .call(g => g.selectAll(".tick text") // Style X-axis text to match first chart
+                        .attr("font-family", "Poppins")
+                        .style("font-size", "28px") 
+                        .attr("font-weight", "600")
+                        .attr("fill", "#2c3e50"));
+                // --- DELETED X-Axis Label ("Dichotomies") ---
 
-                            <div className="results-details">
-                                <div className="profile-grid-container">
-                                    <h3 className="profile-grid-title">Discover Jung's 16 Profiles</h3>
-                                    <div className="profile-grid">
-                                        {profileGridData.map((p, i) => (
-                                            <div key={i} className={`profile-cell ${p.color === 'a' ? 'cell-color-a' : 'cell-color-b'} ${p.type === formatTypeKey(typeString) ? 'highlight' : ''}`} onClick={() => showProfileModal(p.type, p.title)}>
-                                                <div className="profile-cell-type" dangerouslySetInnerHTML={{__html: p.type.replace('C(J)', 'C<span class="suffix">(J)</span>').replace('M(P)', 'M<span class="suffix">(P)</span>')}} />
-                                                <div className="profile-cell-title">{p.title}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="restart-button-container">
-                                <button id="printBtn" onClick={() => {
-                                    setShowConverse(true);
-                                    setTimeout(() => window.print(), 300);
-                                }}>Download / Print Results</button>
-                            </div>
-                            <footer className="page-footer"><b>ourfields.ie</b> J16T (Jung 16 Temperaments)</footer>
-                        </div>
-                    )}
+                // Y-Axis
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(yScale).tickFormat(() => "")) // Hide tick labels
+                    .call(g => g.select(".domain").remove()); // Remove the axis domain line
+                // --- DELETED Y-Axis Label ("Score (%)") ---
 
-                    {modalData && (
-                        <div id="profileModal" className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalData(null)}>
-                            <div className="modal-content">
-                                <button className="modal-close" onClick={() => setModalData(null)}>&times;</button>
-                                <h4 className="modal-profile-title" dangerouslySetInnerHTML={{__html: modalData.title}} />
-                                <p className="modal-profile-subtitle">{modalData.subtitle}</p>
-                                <p className="modal-profile-description">{modalData.desc}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
+                // 5. Draw the Bars
+                const barGroups = g.append("g")
+                    .selectAll("g")
+                    .data(data)
+                    .join("g")
+                    .attr("transform", d => `translate(${x0(d.group)},0)`);
 
-        const rootElement = document.getElementById('root');
-        if (!rootElement) {
-          throw new Error("Could not find root element to mount to");
-        }
+                // --- MODIFIED: Bind data to a group first to handle both rect and circle ---
+                const bars = barGroups.selectAll(".bar-group")
+                    .data(d => [
+                        { key: 'valueA', value: d.valueA, letter: d.keyA }, 
+                        { key: 'valueB', value: d.valueB, letter: d.keyB }
+                    ])
+                    .join("g")
+                    .attr("class", "bar-group");
 
-        const root = ReactDOM.createRoot(rootElement);
-        root.render(
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
-        );
+                // Draw Rectangles
+                bars.append("rect")
+                    .attr("class", "chart-bar-rect") // Added class for hover effect
+                    .attr("x", d => x1(d.key)) 
+                    .attr("width", x1.bandwidth())
+                    .attr("y", d => yScale(d.value))
+                    .attr("height", d => height - yScale(d.value))
+                    .attr("fill", d => d3ColorMap[d.letter])
+                    .attr("rx", 5)
+                    // --- NEW: Click event for Bar ---
+                    .on("click", (event, d) => {
+                        const info = chartDescriptions[d.letter];
+                        let title = d.letter;
+                        // Format title specifically for C(J) and M(P)
+                        if(d.letter === 'J') title = 'C<span class="suffix">(J)</span>';
+                        if(d.letter === 'P') title = 'M<span class="suffix">(P)</span>';
+                        
+                        showProfileModal(title, info.question, info.answer);
+                    });
+
+                /* === MODIFICATION: Explicit attributes to fix rendering issues === */
+                const bubbleGroups = bars.append("g")
+                    .attr("class", "chart-bubble-group")
+                    .attr("transform", d => `translate(${x1(d.key) + x1.bandwidth() / 2}, ${yScale(d.value) - 25})`)
+                    .on("click", (event, d) => {
+                        const info = chartDescriptions[d.letter];
+                        let title = d.letter;
+                         // Format title specifically for C(J) and M(P)
+                        if(d.letter === 'J') title = 'C<span class="suffix">(J)</span>';
+                        if(d.letter === 'P') title = 'M<span class="suffix">(P)</span>';
+
+                        showProfileModal(title, info.question, info.answer);
+                    });
+
+                bubbleGroups.append("circle")
+                    .attr("r", 15) 
+                    .attr("fill", "#fff") // Explicitly set white fill
+                    .attr("stroke", d => d3ColorMap[d.letter]) 
+                    .attr("stroke-width", 2);
+
+                bubbleGroups.append("text")
+                    .text("?")
+                    .attr("text-anchor", "middle") // Center horizontally
+                    .attr("dominant-baseline", "central") // Center vertically
+                    .attr("fill", "#555") // Explicit text color
+                    .style("font-family", "Poppins, sans-serif")
+                    .style("font-size", "18px")
+                    .style("font-weight", "700")
+                    .style("pointer-events", "none");
+                /* === END MODIFICATION === */
+            }
+
+
+            // --- Event Listeners ---
+            
+            // --- MODIFIED: Start Button now skips Settings Page and starts Quiz directly ---
+            startBtn.addEventListener('click', () => { 
+                coverPage.style.display = 'none'; 
+                // Settings page removed, directly showing quiz section
+                if (isAdvancing) return; 
+                
+                isAdvancing = true;    
+                quizSection.style.display = 'block'; 
+                document.body.style.overflow = 'auto'; 
+                showQuestion(true); 
+            });
+            // --- END MODIFICATION ---
+
+
+            prevBtn.addEventListener('click', () => {
+                if (isAdvancing) return; 
+                isAdvancing = true; 
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion();
+                } else {
+                    isAdvancing = false; 
+                }
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                if (isAdvancing) return; 
+                isAdvancing = true; 
+                if (currentQuestionIndex < questions.length - 1) {
+                    currentQuestionIndex++;
+                    showQuestion();
+                } else {
+                    isAdvancing = false; 
+                }
+            });
+            
+            finishBtn.addEventListener('click', () => {
+                if (isAdvancing) return; 
+                showResults();
+            });
+            
+            // --- MODIFIED: Changed from restartBtn to printBtn and added print logic ---
+            printBtn.addEventListener('click', () => {
+                // 1. Force open all accordions on the results page
+                document.querySelectorAll('#resultsPage details').forEach(detail => {
+                    detail.open = true;
+                });
+                
+                // 2. Force show the converse profile
+                const otherGrid = document.getElementById('other-letter-grid');
+                const otherBtn = document.getElementById('showOtherBtn');
+                const oppositeHeaderEl = document.getElementById('oppositeTypeHeader');
+                const oppositeDescEl = document.getElementById('oppositeDesc');
+                const converseChartContainer = document.getElementById('converse-chart-container'); 
+    
+                if (otherGrid) otherGrid.style.display = 'grid';
+                if (oppositeHeaderEl) oppositeHeaderEl.style.display = 'block';
+                if (oppositeDescEl) oppositeDescEl.style.display = 'block';
+                if (converseChartContainer) converseChartContainer.style.display = 'block'; 
+                if (otherBtn) otherBtn.textContent = 'Hide Converse Profile'; 
+    
+                // --- REMOVED: resultsChartInstance.resize(); (No longer needed for D3) ---
+
+                // 3. Call the print dialog after a short delay
+                setTimeout(() => {
+                    window.print();
+                }, 250); 
+            });
+            // --- END MODIFIED ---
+
+            qOption0.addEventListener('click', () => handleOptionClick(qOption0));
+            qOption1.addEventListener('click', () => handleOptionClick(qOption1));
+
+            // --- Toggle "Other Perspectives" logic ---
+            const showOtherBtn = document.getElementById('showOtherBtn');
+            const otherLetterGrid = document.getElementById('other-letter-grid');
+            const oppositeHeaderEl = document.getElementById('oppositeTypeHeader');
+            const oppositeDescEl = document.getElementById('oppositeDesc'); // --- NEW ---
+            const converseChartContainer = document.getElementById('converse-chart-container'); // --- NEW ---
+
+            if (showOtherBtn && otherLetterGrid && oppositeHeaderEl && oppositeDescEl && converseChartContainer) { // --- MODIFIED ---
+                showOtherBtn.addEventListener('click', () => {
+                    const isHidden = otherLetterGrid.style.display === 'none' || otherLetterGrid.style.display === '';
+                    if (isHidden) {
+                        otherLetterGrid.style.display = 'grid';
+                        oppositeHeaderEl.style.display = 'block'; 
+                        oppositeDescEl.style.display = 'block'; // --- NEW ---
+                        converseChartContainer.style.display = 'block'; // --- NEW ---
+                        showOtherBtn.textContent = 'Hide Converse Profile'; 
+
+                        // --- NEW: D3 chart is drawn on show, no resize needed
+                        
+                    } else {
+                        otherLetterGrid.style.display = 'none';
+                        oppositeHeaderEl.style.display = 'none'; 
+                        oppositeDescEl.style.display = 'none'; // --- NEW ---
+                        converseChartContainer.style.display = 'none'; // --- NEW ---
+                        showOtherBtn.textContent = 'Show Converse Profile'; 
+                    }
+                });
+            }
+
+            // --- NEW: Grid and Modal Event Listeners ---
+            populateProfileGrid(); // Call the function to build the grid
+
+            // --- MODIFIED: Grid click listener is now inside populateProfileGrid ---
+            // if (profileGrid) {
+            //     profileGrid.addEventListener('click', (e) => {
+            //         const cell = e.target.closest('.profile-cell');
+            //         if (cell && cell.dataset.type) {
+            //             showProfileModal(cell.dataset.type);
+            //         }
+            //     });
+            // }
+
+            if (modalCloseBtn) {
+                modalCloseBtn.addEventListener('click', hideProfileModal);
+            }
+
+            if (profileModal) {
+                profileModal.addEventListener('click', (e) => {
+                    // Close if clicking on the overlay (e.target), but not the content
+                    if (e.target === profileModal) {
+                        hideProfileModal();
+                    }
+                });
+            }
+            // --- END NEW ---
+            
+        }); 
     </script>
+
 </body>
 </html>
